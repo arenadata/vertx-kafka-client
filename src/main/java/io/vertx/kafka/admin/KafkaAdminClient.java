@@ -325,4 +325,11 @@ public interface KafkaAdminClient {
    * Like {@link #close(long, Handler)} but returns a {@code Future} of the asynchronous result
    */
   Future<Void> close(long timeout);
+
+  @GenIgnore
+  void alterClientQuotas(List<ClientQuotaAlteration> entries, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> alterClientQuotas(List<ClientQuotaAlteration> entries);
+
 }

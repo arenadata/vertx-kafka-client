@@ -17,28 +17,16 @@
 package io.vertx.kafka.client.common.impl;
 
 import io.vertx.core.Handler;
-import io.vertx.kafka.admin.Config;
-import io.vertx.kafka.admin.ConfigEntry;
-import io.vertx.kafka.admin.ConsumerGroupListing;
-import io.vertx.kafka.admin.ListConsumerGroupOffsetsOptions;
-import io.vertx.kafka.admin.ListOffsetsResultInfo;
-import io.vertx.kafka.admin.MemberAssignment;
-import io.vertx.kafka.admin.NewPartitions;
-import io.vertx.kafka.admin.NewTopic;
-import io.vertx.kafka.admin.OffsetSpec;
+import io.vertx.kafka.admin.*;
 import io.vertx.kafka.client.common.ConfigResource;
 import io.vertx.kafka.client.common.Node;
-import io.vertx.kafka.client.consumer.OffsetAndTimestamp;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
+import io.vertx.kafka.client.consumer.OffsetAndTimestamp;
 import io.vertx.kafka.client.producer.RecordMetadata;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -251,5 +239,23 @@ public class Helper {
 
   public static ListOffsetsResultInfo from(org.apache.kafka.clients.admin.ListOffsetsResult.ListOffsetsResultInfo lori) {
     return new ListOffsetsResultInfo(lori.offset(), lori.timestamp(), lori.leaderEpoch().orElse(null));
+  }
+
+  public static org.apache.kafka.common.quota.ClientQuotaEntity to(ClientQuotaEntity clientQuotaEntity) {
+    return new org.apache.kafka.common.quota.ClientQuotaEntity(clientQuotaEntity.getEntries());
+  }
+
+  public static org.apache.kafka.common.quota.ClientQuotaAlteration.Op to(QuotaAlterationOperation quotaAlterationOperation) {
+    return new org.apache.kafka.common.quota.ClientQuotaAlteration
+      .Op(quotaAlterationOperation.getKey(), quotaAlterationOperation.getValue());
+  }
+
+  public static List<org.apache.kafka.common.quota.ClientQuotaAlteration.Op> to(List<QuotaAlterationOperation> quotaAlterationOperations) {
+    return quotaAlterationOperations.stream().map(Helper::to).collect(Collectors.toList());
+  }
+
+  public static org.apache.kafka.common.quota.ClientQuotaAlteration to(ClientQuotaAlteration clientQuotaAlteration) {
+    return new org.apache.kafka.common.quota.ClientQuotaAlteration(
+      to(clientQuotaAlteration.getEntity()), to(clientQuotaAlteration.getOps()));
   }
 }
