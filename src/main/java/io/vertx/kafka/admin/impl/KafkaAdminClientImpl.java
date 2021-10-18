@@ -499,17 +499,37 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   public Future<Void> alterClientQuotas(List<ClientQuotaAlteration> entries) {
     ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
     Promise<Void> promise = ctx.promise();
-
-    AlterClientQuotasResult alterClientQuotasResult = this.adminClient.alterClientQuotas(
-      entries.stream().map(Helper::to).collect(Collectors.toList()));
-
-    alterClientQuotasResult.all().whenComplete((v, ex) -> {
-      if (ex == null) {
-        promise.complete();
-      } else {
-        promise.fail(ex);
-      }
-    });
+    alterClientQuotasInner(entries, promise);
     return promise.future();
+  }
+
+  private void alterClientQuotasInner(List<ClientQuotaAlteration> entries, Promise<Void> promise) {
+    try {
+      AlterClientQuotasResult alterClientQuotasResult = this.adminClient.alterClientQuotas(
+        entries.stream().map(Helper::to).collect(Collectors.toList()));
+
+      alterClientQuotasResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete();
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void describeClientQuotas(ClientQuotaFilter filter, Handler<AsyncResult<Map<ClientQuotaEntity, Map<String, Double>>>> completionHandler) {
+    alterClientQuotas(filter).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Map<ClientQuotaEntity, Map<String, Double>>> alterClientQuotas(ClientQuotaFilter filter) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+    //DescribeClientQuotasResult describeClientQuotasResult = this.adminClient.describeClientQuotas();
+    return null;
   }
 }
