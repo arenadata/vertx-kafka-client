@@ -24,6 +24,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.kafka.admin.impl.KafkaAdminClientImpl;
 import io.vertx.kafka.client.common.ConfigResource;
+import io.vertx.kafka.client.common.ElectionType;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -296,6 +297,12 @@ public interface KafkaAdminClient {
    */
   @GenIgnore
   Future<Map<TopicPartition, ListOffsetsResultInfo>> listOffsets(Map<TopicPartition, OffsetSpec> topicPartitionOffsets);
+
+  @GenIgnore
+  void electLeaders(ElectionType electionType, Set<TopicPartition> partitions, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> electLeaders(ElectionType electionType, Set<TopicPartition> partitions);
 
   /**
    * Close the admin client

@@ -29,10 +29,7 @@ import io.vertx.kafka.admin.NewTopic;
 import io.vertx.kafka.admin.OffsetSpec;
 import io.vertx.kafka.admin.TopicDescription;
 import io.vertx.kafka.admin.*;
-import io.vertx.kafka.client.common.ConfigResource;
-import io.vertx.kafka.client.common.Node;
-import io.vertx.kafka.client.common.TopicPartition;
-import io.vertx.kafka.client.common.TopicPartitionInfo;
+import io.vertx.kafka.client.common.*;
 import io.vertx.kafka.client.common.impl.Helper;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.admin.*;
@@ -50,8 +47,8 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   private AdminClient adminClient;
 
   public KafkaAdminClientImpl(Vertx vertx, AdminClient adminClient) {
-      this.vertx = vertx;
-      this.adminClient = adminClient;
+    this.vertx = vertx;
+    this.adminClient = adminClient;
   }
 
   @Override
@@ -461,6 +458,31 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
         promise.fail(ex);
       }
     });
+    return promise.future();
+  }
+
+  @Override
+  public void electLeaders(ElectionType electionType, Set<TopicPartition> partitions, Handler<AsyncResult<Void>> completionHandler) {
+    electLeaders(electionType, partitions).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Void> electLeaders(ElectionType electionType, Set<TopicPartition> partitions) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+
+    try {
+      ElectLeadersResult electLeadersResult = this.adminClient.electLeaders(Helper.to(electionType), Helper.toTopicPartitionSet(partitions));
+      electLeadersResult.all().whenComplete((p, ex) -> {
+        if (ex == null) {
+          promise.complete();
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
     return promise.future();
   }
 

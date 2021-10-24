@@ -20,15 +20,13 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.kafka.admin.*;
-import io.vertx.kafka.client.common.ConfigResource;
-import io.vertx.kafka.client.common.Node;
-import io.vertx.kafka.client.common.TopicPartition;
-import io.vertx.kafka.client.common.TopicPartitionInfo;
+import io.vertx.kafka.client.common.*;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.config.TopicConfig;
+import org.apache.kafka.common.errors.ElectionNotNeededException;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.After;
@@ -862,5 +860,27 @@ public class AdminClientTest extends KafkaClusterTestBase {
           }));
         });
       }));
+  }
+
+  @Test
+  public void testElectLeaders(TestContext ctx) {
+    final String topicName = "elect-leaders";
+    kafkaCluster.createTopic(topicName, 1, 1);
+
+    final KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    final Async async = ctx.async();
+
+    vertx.setTimer(1000, t ->
+      adminClient.listTopics(ctx.asyncAssertSuccess(topics -> {
+        ctx.assertTrue(topics.contains("elect-leaders"));
+        adminClient.electLeaders(ElectionType.PREFERRED,
+          Collections.singleton(new TopicPartition(topicName, 0)),
+          ctx.asyncAssertFailure(v -> {
+            ctx.assertTrue(v instanceof ElectionNotNeededException);
+            ctx.assertTrue(v.getMessage().equals("Leader election not needed for topic partition."));
+            adminClient.close();
+            async.complete();
+          }));
+      })));
   }
 }
