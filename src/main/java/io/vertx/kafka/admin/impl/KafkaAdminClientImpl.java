@@ -607,4 +607,24 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
     }
   }
 
+  @Override
+  public void removeMembersFromConsumerGroup(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions, Handler<AsyncResult<Void>> completionHandler) {
+    removeMembersFromConsumerGroup(groupId, removeMembersFromConsumerGroupOptions).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Void> removeMembersFromConsumerGroup(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+    removeMembersFromConsumerGroupInner(groupId, removeMembersFromConsumerGroupOptions, promise);
+    return promise.future();
+  }
+
+  private void removeMembersFromConsumerGroupInner(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions, Promise<Void> promise) {
+    try {
+      RemoveMembersFromConsumerGroupResult removeMembersFromConsumerGroupResult = this.adminClient.removeMembersFromConsumerGroup(groupId, removeMembersFromConsumerGroupOptions);
+      removeMembersFromConsumerGroupResult.all().whenComplete()
+    }
+  }
+
 }

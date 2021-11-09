@@ -27,6 +27,7 @@ import io.vertx.kafka.client.common.ConfigResource;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions;
 
 import java.util.*;
 
@@ -341,5 +342,11 @@ public interface KafkaAdminClient {
 
   @GenIgnore
   Future<FeatureMetadata> describeFeatures();
+
+  @GenIgnore
+  void removeMembersFromConsumerGroup(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> removeMembersFromConsumerGroup(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions);
 
 }
