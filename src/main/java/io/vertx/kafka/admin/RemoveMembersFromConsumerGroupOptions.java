@@ -45,6 +45,6 @@ public class RemoveMembersFromConsumerGroupOptions {
   public String toString() {
     return "RemoveMembersFromConsumerGroupOptions{" +
       "members=" + members +
-      '}';
+      "}";
   }
 }
