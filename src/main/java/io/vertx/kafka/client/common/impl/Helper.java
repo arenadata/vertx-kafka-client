@@ -252,7 +252,7 @@ public class Helper {
   public static org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions to(RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions) {
     if (removeMembersFromConsumerGroupOptions.getMembers() != null) {
       List<org.apache.kafka.clients.admin.MemberToRemove> membersToRemove = removeMembersFromConsumerGroupOptions.getMembers().stream()
-        .map(mtr -> new org.apache.kafka.clients.admin.MemberToRemove(mtr.getGroupInstanceId()))
+        .map(mtr -> new org.apache.kafka.clients.admin.MemberToRemove(mtr.groupInstanceId()))
         .collect(Collectors.toList());
       return new org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions(membersToRemove);
     } else {

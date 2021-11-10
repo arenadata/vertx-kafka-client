@@ -6,7 +6,6 @@ import org.apache.kafka.common.message.LeaveGroupRequestData;
 
 import java.util.Objects;
 
-@Getter
 public class MemberToRemove {
   private String groupInstanceId;
 
