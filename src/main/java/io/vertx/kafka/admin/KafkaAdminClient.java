@@ -27,7 +27,7 @@ import io.vertx.kafka.client.common.ConfigResource;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions;
+import io.vertx.kafka.admin.RemoveMembersFromConsumerGroupOptions;
 
 import java.util.*;
 

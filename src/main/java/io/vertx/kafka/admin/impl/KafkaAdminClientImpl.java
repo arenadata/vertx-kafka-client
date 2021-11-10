@@ -37,8 +37,8 @@ import io.vertx.kafka.client.common.TopicPartitionInfo;
 import io.vertx.kafka.client.common.impl.Helper;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.admin.*;
+import io.vertx.kafka.admin.RemoveMembersFromConsumerGroupOptions;
 import org.apache.kafka.common.KafkaFuture;
-import org.apache.kafka.common.requests.DescribeLogDirsResponse;
 
 import java.time.Duration;
 import java.util.*;
@@ -622,8 +622,16 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
 
   private void removeMembersFromConsumerGroupInner(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions, Promise<Void> promise) {
     try {
-      RemoveMembersFromConsumerGroupResult removeMembersFromConsumerGroupResult = this.adminClient.removeMembersFromConsumerGroup(groupId, removeMembersFromConsumerGroupOptions);
-      removeMembersFromConsumerGroupResult.all().whenComplete()
+      RemoveMembersFromConsumerGroupResult removeMembersFromConsumerGroupResult = this.adminClient.removeMembersFromConsumerGroup(groupId, Helper.to(removeMembersFromConsumerGroupOptions));
+      removeMembersFromConsumerGroupResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete();
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
     }
   }
 

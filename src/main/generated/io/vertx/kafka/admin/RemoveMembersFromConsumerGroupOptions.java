@@ -1,7 +1,6 @@
 package io.vertx.kafka.admin;
 
 import io.vertx.core.json.JsonObject;
-import org.apache.kafka.clients.admin.MemberToRemove;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,8 +22,13 @@ public class RemoveMembersFromConsumerGroupOptions {
     this.members = Collections.emptySet();
   }
 
-  public Set<MemberToRemove> members() {
-    return this.members;
+  public Set<MemberToRemove> getMembers() {
+    return members;
+  }
+
+  public RemoveMembersFromConsumerGroupOptions setMembers(Set<MemberToRemove> members) {
+    this.members = members;
+    return this;
   }
 
   public boolean removeAll() {

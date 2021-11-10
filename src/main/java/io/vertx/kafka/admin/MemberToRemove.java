@@ -2,6 +2,9 @@ package io.vertx.kafka.admin;
 
 import io.vertx.core.json.JsonObject;
 import lombok.Getter;
+import org.apache.kafka.common.message.LeaveGroupRequestData;
+
+import java.util.Objects;
 
 @Getter
 public class MemberToRemove {
@@ -16,6 +19,10 @@ public class MemberToRemove {
 
   public MemberToRemove(JsonObject json) {
     this.groupInstanceId = json.getString("groupInstanceId");
+  }
+
+  public MemberToRemove(MemberToRemove that) {
+    this.groupInstanceId = that.groupInstanceId;
   }
 
   public MemberToRemove setGroupInstanceId(String groupInstanceId) {
@@ -38,9 +45,23 @@ public class MemberToRemove {
   public boolean equals(Object o) {
     if (o instanceof MemberToRemove) {
       MemberToRemove otherMember = (MemberToRemove)o;
-      return this.groupInstanceId.equals(otherMember.groupInstanceId);
+      return Objects.equals(groupInstanceId, otherMember.groupInstanceId);
     } else {
       return false;
     }
   }
+
+  @Override
+  public int hashCode() {
+    return groupInstanceId != null ? groupInstanceId.hashCode() : 0;
+  }
+
+  LeaveGroupRequestData.MemberIdentity toMemberIdentity() {
+    return (new LeaveGroupRequestData.MemberIdentity()).setGroupInstanceId(this.groupInstanceId).setMemberId("");
+  }
+
+  public String groupInstanceId() {
+    return this.groupInstanceId;
+  }
+
 }
