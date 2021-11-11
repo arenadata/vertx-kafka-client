@@ -47,13 +47,18 @@ public class RemoveMembersFromConsumerGroupOptionsConverterTest {
   @Test
   public void testToJsonMapParam() {
     Map<String, Object> json = new HashMap<>();
-    MemberToRemove memberToRemove = new MemberToRemove("some_group_instance_id");
+    String groupInstanceId = "some_group_instance_id";
+    MemberToRemove memberToRemove = new MemberToRemove(groupInstanceId);
     RemoveMembersFromConsumerGroupOptions obj = new RemoveMembersFromConsumerGroupOptions
       (ImmutableSet.of(memberToRemove));
     RemoveMembersFromConsumerGroupOptionsConverter.toJson(obj, json);
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.put("groupInstanceId", groupInstanceId);
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(jsonObject);
     assertFalse(json.isEmpty());
     assertEquals(1, json.size());
-    assertEquals(ImmutableSet.of(memberToRemove), json.get("members"));
+    assertEquals(jsonArray, json.get("members"));
   }
 
   @Test

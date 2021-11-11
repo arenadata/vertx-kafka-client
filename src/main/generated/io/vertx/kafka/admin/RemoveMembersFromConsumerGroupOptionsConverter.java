@@ -26,7 +26,9 @@ public class RemoveMembersFromConsumerGroupOptionsConverter {
 
   public static void toJson(RemoveMembersFromConsumerGroupOptions obj, java.util.Map<String, Object> json) {
     if (obj.getMembers() != null) {
-      json.put("members", obj.getMembers());
+      JsonArray array = new JsonArray();
+      obj.getMembers().forEach(item -> array.add(item.toJson()));
+      json.put("members", array);
     }
   }
 }

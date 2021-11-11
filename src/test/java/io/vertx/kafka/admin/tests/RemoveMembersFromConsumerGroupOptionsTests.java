@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableSet;
 import io.vertx.core.json.JsonObject;
 import io.vertx.kafka.admin.MemberToRemove;
 import io.vertx.kafka.admin.RemoveMembersFromConsumerGroupOptions;
+import io.vertx.kafka.admin.RemoveMembersFromConsumerGroupOptionsConverter;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,6 +14,9 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mockStatic;
 
 public class RemoveMembersFromConsumerGroupOptionsTests {
 
@@ -70,9 +75,10 @@ public class RemoveMembersFromConsumerGroupOptionsTests {
   public void testToJson() {
     MemberToRemove memberToRemove = new MemberToRemove("some_group_instance_id");
     RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions = new RemoveMembersFromConsumerGroupOptions(ImmutableSet.of(memberToRemove));
-    JsonObject jsonObject = removeMembersFromConsumerGroupOptions.toJson();
-    assertEquals(1, jsonObject.getMap().size());
-    assertEquals(ImmutableSet.of(memberToRemove), jsonObject.getMap().get("members"));
+    try(MockedStatic<RemoveMembersFromConsumerGroupOptionsConverter> converterMockedStatic = mockStatic(RemoveMembersFromConsumerGroupOptionsConverter.class)) {
+      removeMembersFromConsumerGroupOptions.toJson();
+      converterMockedStatic.verify(() -> RemoveMembersFromConsumerGroupOptionsConverter.toJson(eq(removeMembersFromConsumerGroupOptions), any(JsonObject.class)));
+    }
   }
 
   @Test
