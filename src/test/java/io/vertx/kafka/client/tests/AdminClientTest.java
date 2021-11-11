@@ -16,6 +16,9 @@
 
 package io.vertx.kafka.client.tests;
 
+import com.google.common.collect.ImmutableSet;
+import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -26,9 +29,11 @@ import io.vertx.kafka.admin.ConsumerGroupListing;
 import io.vertx.kafka.admin.KafkaAdminClient;
 import io.vertx.kafka.admin.MemberAssignment;
 import io.vertx.kafka.admin.MemberDescription;
+import io.vertx.kafka.admin.MemberToRemove;
 import io.vertx.kafka.admin.NewPartitions;
 import io.vertx.kafka.admin.NewTopic;
 import io.vertx.kafka.admin.OffsetSpec;
+import io.vertx.kafka.admin.RemoveMembersFromConsumerGroupOptions;
 import io.vertx.kafka.admin.TopicDescription;
 import io.vertx.kafka.admin.*;
 import io.vertx.kafka.admin.impl.KafkaAdminClientImpl;
@@ -36,6 +41,7 @@ import io.vertx.kafka.client.common.ConfigResource;
 import io.vertx.kafka.client.common.Node;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.common.TopicPartitionInfo;
+import io.vertx.kafka.client.common.impl.Helper;
 import org.apache.kafka.clients.admin.FeatureMetadata;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -43,12 +49,14 @@ import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.config.TopicConfig;
+import org.apache.kafka.common.internals.KafkaFutureImpl;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.util.*;
@@ -996,6 +1004,33 @@ public class AdminClientTest extends KafkaClusterTestBase {
         async.complete();
         adminClient.close();
       }));
+  }
+
+  @Test
+  public void testRemoveMembersFromConsumerGroup(TestContext ctx) {
+    Async async = ctx.async();
+    AdminClient adminClient = mock(AdminClient.class);
+    KafkaAdminClient kafkaAdminClient = spy(new KafkaAdminClientImpl(this.vertx, adminClient));
+    String groupId = "some_group_id";
+    RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions = new RemoveMembersFromConsumerGroupOptions();
+    MemberToRemove memberToRemove = new MemberToRemove(groupId);
+    removeMembersFromConsumerGroupOptions.setMembers(ImmutableSet.of(memberToRemove));
+    RemoveMembersFromConsumerGroupResult removeMembersFromConsumerGroupResult = mock(RemoveMembersFromConsumerGroupResult.class);
+    Void v = mock(Void.class);
+    when(removeMembersFromConsumerGroupResult.all()).thenReturn(KafkaFuture.completedFuture(v));
+    when(adminClient.removeMembersFromConsumerGroup(eq(groupId), any(org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions.class))).thenReturn(removeMembersFromConsumerGroupResult);
+    kafkaAdminClient.removeMembersFromConsumerGroup(groupId, removeMembersFromConsumerGroupOptions, ctx.asyncAssertSuccess(v1 -> {
+      verify(kafkaAdminClient).removeMembersFromConsumerGroup(groupId, removeMembersFromConsumerGroupOptions);
+      ArgumentCaptor<org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions> captor = ArgumentCaptor.forClass(org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions.class);
+      verify(adminClient).removeMembersFromConsumerGroup(eq(groupId), captor.capture());
+      org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptionsNew = captor.getValue();
+      org.apache.kafka.clients.admin.MemberToRemove memberToRemoveNew = removeMembersFromConsumerGroupOptionsNew.members().stream().findFirst().orElse(null);
+      assertNotNull(memberToRemoveNew);
+      assertEquals(1, removeMembersFromConsumerGroupOptionsNew.members().size());
+      assertEquals(groupId, memberToRemoveNew.groupInstanceId());
+      async.complete();
+      adminClient.close();
+    }));
   }
 }
 
