@@ -23,11 +23,11 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.kafka.admin.impl.KafkaAdminClientImpl;
+import io.vertx.kafka.client.common.AclBinding;
 import io.vertx.kafka.client.common.ConfigResource;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.admin.AdminClient;
-import io.vertx.kafka.admin.RemoveMembersFromConsumerGroupOptions;
 
 import java.util.*;
 
@@ -348,5 +348,11 @@ public interface KafkaAdminClient {
 
   @GenIgnore
   Future<Void> removeMembersFromConsumerGroup(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions);
+
+  @GenIgnore
+  void createAcls(Collection<AclBinding> acls, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> createAcls(Collection<AclBinding> acls);
 
 }

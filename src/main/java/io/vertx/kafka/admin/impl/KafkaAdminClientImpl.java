@@ -30,10 +30,7 @@ import io.vertx.kafka.admin.NewTopic;
 import io.vertx.kafka.admin.OffsetSpec;
 import io.vertx.kafka.admin.TopicDescription;
 import io.vertx.kafka.admin.*;
-import io.vertx.kafka.client.common.ConfigResource;
-import io.vertx.kafka.client.common.Node;
-import io.vertx.kafka.client.common.TopicPartition;
-import io.vertx.kafka.client.common.TopicPartitionInfo;
+import io.vertx.kafka.client.common.*;
 import io.vertx.kafka.client.common.impl.Helper;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.admin.*;
@@ -624,6 +621,35 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
     try {
       RemoveMembersFromConsumerGroupResult removeMembersFromConsumerGroupResult = this.adminClient.removeMembersFromConsumerGroup(groupId, Helper.to(removeMembersFromConsumerGroupOptions));
       removeMembersFromConsumerGroupResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete();
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void createAcls(Collection<AclBinding> acls, Handler<AsyncResult<Void>> completionHandler) {
+    createAcls(acls).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Void> createAcls(Collection<AclBinding> acls) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+    createAclsInner(acls, promise);
+    return promise.future();
+  }
+
+  private void createAclsInner(Collection<AclBinding> acls, Promise<Void> promise) {
+    try {
+      Collection<org.apache.kafka.common.acl.AclBinding> aclBindings = acls.stream().map(Helper::to).collect(Collectors.toList());
+      CreateAclsResult createAclsResult = this.adminClient.createAcls(aclBindings);
+      createAclsResult.all().whenComplete((v, ex) -> {
         if (ex == null) {
           promise.complete();
         } else {

@@ -18,13 +18,12 @@ package io.vertx.kafka.client.common.impl;
 
 import io.vertx.core.Handler;
 import io.vertx.kafka.admin.*;
-import io.vertx.kafka.client.common.ConfigResource;
-import io.vertx.kafka.client.common.Node;
+import io.vertx.kafka.client.common.*;
 import io.vertx.kafka.client.consumer.OffsetAndTimestamp;
-import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import io.vertx.kafka.client.producer.RecordMetadata;
 import org.apache.kafka.clients.admin.AlterConfigOp;
+import org.apache.kafka.common.acl.AccessControlEntry;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -258,6 +257,19 @@ public class Helper {
     } else {
       return new org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions();
     }
+  }
+
+  public static org.apache.kafka.common.acl.AclBinding to(AclBinding aclBinding) {
+    ResourcePattern resPattern = aclBinding.getResourcePattern();
+    org.apache.kafka.common.resource.ResourcePattern resourcePattern = new org.apache.kafka.common.resource.ResourcePattern
+      (resPattern.getResourceType(), resPattern.getName(), resPattern.getPatternType());
+    AccessControlEntryData accessControlEntryData = aclBinding.getEntryData();
+    AccessControlEntry accessControlEntry = new AccessControlEntry(
+      accessControlEntryData.getPrincipal(),
+      accessControlEntryData.getHost(),
+      accessControlEntryData.getOperation(),
+      accessControlEntryData.getPermissionType());
+    return new org.apache.kafka.common.acl.AclBinding(resourcePattern, accessControlEntry);
   }
 
 }
