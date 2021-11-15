@@ -1,26 +1,22 @@
 package io.vertx.kafka.client.common;
 
 import io.vertx.core.json.JsonObject;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.acl.AclPermissionType;
 
 import java.util.Objects;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AccessControlEntryData {
   private String principal;
   private String host;
   private AclOperation operation;
   private AclPermissionType permissionType;
-
-  public AccessControlEntryData() {
-  }
-
-  public AccessControlEntryData(String principal, String host, AclOperation operation, AclPermissionType permissionType) {
-    this.principal = principal;
-    this.host = host;
-    this.operation = operation;
-    this.permissionType = permissionType;
-  }
 
   public AccessControlEntryData(JsonObject json) {
     AccessControlEntryDataConverter.fromJson(json, this);

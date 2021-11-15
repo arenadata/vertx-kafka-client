@@ -1,24 +1,21 @@
 package io.vertx.kafka.client.common;
 
 import io.vertx.core.json.JsonObject;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourceType;
 
 import java.util.Objects;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResourcePattern {
   private ResourceType resourceType;
   private String name;
   private PatternType patternType;
-
-  public ResourcePattern() {
-  }
-
-  public ResourcePattern(ResourceType resourceType, String name, PatternType patternType) {
-    this.resourceType = resourceType;
-    this.name = name;
-    this.patternType = patternType;
-  }
 
   public ResourcePattern(JsonObject json) {
     ResourcePatternConverter.fromJson(json, this);
@@ -30,26 +27,14 @@ public class ResourcePattern {
     return json;
   }
 
-  public ResourceType getResourceType() {
-    return this.resourceType;
-  }
-
   public ResourcePattern setResourceType(ResourceType resourceType) {
     this.resourceType = resourceType;
     return this;
   }
 
-  public String getName() {
-    return this.name;
-  }
-
   public ResourcePattern setName(String name) {
     this.name = name;
     return this;
-  }
-
-  public PatternType getPatternType() {
-    return this.patternType;
   }
 
   public ResourcePattern setPatternType(PatternType patternType) {
