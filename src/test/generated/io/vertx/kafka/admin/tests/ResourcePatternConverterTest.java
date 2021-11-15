@@ -57,6 +57,7 @@ public class ResourcePatternConverterTest {
     assertEquals(name, json.get("name"));
     assertEquals(patternType.name(), json.get("patternType"));
   }
+
   @Test
   public void testToJsonMapParamNullFields() {
     Map<String, Object> json = spy(new HashMap<>());

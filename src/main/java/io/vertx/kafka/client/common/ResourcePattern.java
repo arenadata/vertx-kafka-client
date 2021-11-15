@@ -72,7 +72,7 @@ public class ResourcePattern {
     result = 31 * result + (resourceType != null ? resourceType.hashCode() : 0);
     result = 31 * result + (name != null ? name.hashCode() : 0);
     result = 31 * result + (patternType != null ? patternType.hashCode() : 0);
-    return  result;
+    return result;
   }
 
 }

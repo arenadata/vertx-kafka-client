@@ -37,7 +37,7 @@ public class ResourcePatternTest {
   @Test
   public void testJsonArgConstructor() {
     JsonObject jsonObject = new JsonObject();
-    try(MockedStatic<ResourcePatternConverter> converterMock = mockStatic(ResourcePatternConverter.class)) {
+    try (MockedStatic<ResourcePatternConverter> converterMock = mockStatic(ResourcePatternConverter.class)) {
       ResourcePattern resourcePattern = new ResourcePattern(jsonObject);
       converterMock.verify(() -> ResourcePatternConverter.fromJson(jsonObject, resourcePattern));
     }
@@ -46,7 +46,7 @@ public class ResourcePatternTest {
   @Test
   public void testToJson() {
     ResourcePattern resourcePattern = new ResourcePattern();
-    try(MockedStatic<ResourcePatternConverter> converterMock = mockStatic(ResourcePatternConverter.class)) {
+    try (MockedStatic<ResourcePatternConverter> converterMock = mockStatic(ResourcePatternConverter.class)) {
       resourcePattern.toJson();
       converterMock.verify(() -> ResourcePatternConverter.toJson(eq(resourcePattern), any(JsonObject.class)));
     }
@@ -115,7 +115,7 @@ public class ResourcePatternTest {
     String name = "some_name";
     PatternType patternType = PatternType.ANY;
     ResourcePattern resourcePattern1 = new ResourcePattern(resourceType, name, patternType);
-    ResourcePattern resourcePattern2= new ResourcePattern(resourceType, name, patternType);
+    ResourcePattern resourcePattern2 = new ResourcePattern(resourceType, name, patternType);
     assertEquals(resourcePattern1, resourcePattern2);
     ResourcePattern resourcePattern3 = new ResourcePattern();
     ResourcePattern resourcePattern4 = new ResourcePattern();

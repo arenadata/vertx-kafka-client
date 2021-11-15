@@ -41,7 +41,7 @@ public class AccessControlEntryDataTest {
   @Test
   public void testJsonConstructor() {
     JsonObject json = new JsonObject();
-    try(MockedStatic<AccessControlEntryDataConverter> converterMocked = mockStatic(AccessControlEntryDataConverter.class)) {
+    try (MockedStatic<AccessControlEntryDataConverter> converterMocked = mockStatic(AccessControlEntryDataConverter.class)) {
       AccessControlEntryData accessControlEntryData = new AccessControlEntryData(json);
       converterMocked.verify(() -> AccessControlEntryDataConverter.fromJson(json, accessControlEntryData));
     }
@@ -50,7 +50,7 @@ public class AccessControlEntryDataTest {
   @Test
   public void testToJson() {
     AccessControlEntryData accessControlEntryData = new AccessControlEntryData();
-    try(MockedStatic<AccessControlEntryDataConverter> converterMocked = mockStatic(AccessControlEntryDataConverter.class)) {
+    try (MockedStatic<AccessControlEntryDataConverter> converterMocked = mockStatic(AccessControlEntryDataConverter.class)) {
       accessControlEntryData.toJson();
       converterMocked.verify(() -> AccessControlEntryDataConverter.toJson(eq(accessControlEntryData), any(JsonObject.class)));
     }

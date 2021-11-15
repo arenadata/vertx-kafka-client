@@ -37,7 +37,7 @@ public class AclBindingTest {
   @Test
   public void testJsonConstructor() {
     JsonObject jsonObject = new JsonObject();
-    try(MockedStatic<AclBindingConverter> converterMock = mockStatic(AclBindingConverter.class)) {
+    try (MockedStatic<AclBindingConverter> converterMock = mockStatic(AclBindingConverter.class)) {
       AclBinding aclBinding = new AclBinding(jsonObject);
       converterMock.verify(() -> AclBindingConverter.toJson(aclBinding, jsonObject));
     }
@@ -73,7 +73,7 @@ public class AclBindingTest {
   @Test
   public void testToJson() {
     AclBinding aclBinding = new AclBinding();
-    try(MockedStatic<AclBindingConverter> converterMocked = mockStatic(AclBindingConverter.class)) {
+    try (MockedStatic<AclBindingConverter> converterMocked = mockStatic(AclBindingConverter.class)) {
       aclBinding.toJson();
       converterMocked.verify(() -> AclBindingConverter.toJson(eq(aclBinding), any(JsonObject.class)));
     }
@@ -93,7 +93,7 @@ public class AclBindingTest {
     ResourcePattern resourcePattern = new ResourcePattern();
     AccessControlEntryData accessControlEntryData = new AccessControlEntryData();
     AclBinding aclBinding1 = new AclBinding(resourcePattern, accessControlEntryData);
-    AclBinding aclBinding2= new AclBinding(resourcePattern, accessControlEntryData);
+    AclBinding aclBinding2 = new AclBinding(resourcePattern, accessControlEntryData);
     assertEquals(aclBinding1, aclBinding2);
     AclBinding aclBinding3 = new AclBinding();
     AclBinding aclBinding4 = new AclBinding();
@@ -110,5 +110,5 @@ public class AclBindingTest {
     AclBinding aclBinding2 = new AclBinding(resourcePattern, accessControlEntryData2);
     assertNotEquals(aclBinding1, aclBinding2);
   }
-  
+
 }

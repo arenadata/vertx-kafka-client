@@ -31,7 +31,7 @@ public class AclBindingConverterTest {
     JsonObject resourcePatternJson = resourcePattern.toJson();
     String principal = "some_principal";
     String host = "some_host";
-    AclOperation aclOperation= AclOperation.ALL;
+    AclOperation aclOperation = AclOperation.ALL;
     AclPermissionType aclPermissionType = AclPermissionType.ANY;
     AccessControlEntryData entryData = new AccessControlEntryData(principal, host, aclOperation, aclPermissionType);
     JsonObject entryDataJson = entryData.toJson();
@@ -64,7 +64,7 @@ public class AclBindingConverterTest {
     ResourcePattern resourcePattern = new ResourcePattern(resourceType, name, patternType);
     String principal = "some_principal";
     String host = "some_host";
-    AclOperation aclOperation= AclOperation.ALL;
+    AclOperation aclOperation = AclOperation.ALL;
     AclPermissionType aclPermissionType = AclPermissionType.ANY;
     AccessControlEntryData entryData = new AccessControlEntryData(principal, host, aclOperation, aclPermissionType);
     AclBinding obj = new AclBinding(resourcePattern, entryData);
