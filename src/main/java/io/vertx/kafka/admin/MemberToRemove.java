@@ -55,10 +55,6 @@ public class MemberToRemove {
     return groupInstanceId != null ? groupInstanceId.hashCode() : 0;
   }
 
-  LeaveGroupRequestData.MemberIdentity toMemberIdentity() {
-    return (new LeaveGroupRequestData.MemberIdentity()).setGroupInstanceId(this.groupInstanceId).setMemberId("");
-  }
-
   public String groupInstanceId() {
     return this.groupInstanceId;
   }

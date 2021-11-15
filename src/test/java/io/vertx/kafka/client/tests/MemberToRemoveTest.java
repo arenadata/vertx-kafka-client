@@ -59,4 +59,25 @@ public class MemberToRemoveTest {
     String memberToRemoveString = memberToRemove.toString();
     assertEquals("MemberToRemove{groupInstanceId=" + memberToRemove.groupInstanceId() + "}", memberToRemoveString);
   }
+
+  @Test
+  public void testEquals() {
+    String groupInstanceId = "some_group_instance_id";
+    MemberToRemove memberToRemove1 = new MemberToRemove(groupInstanceId);
+    MemberToRemove memberToRemove2 = new MemberToRemove(groupInstanceId);
+    assertEquals(memberToRemove1, memberToRemove2);
+    MemberToRemove memberToRemove3 = new MemberToRemove();
+    MemberToRemove memberToRemove4 = new MemberToRemove();
+    assertEquals(memberToRemove3, memberToRemove4);
+  }
+
+  @Test
+  public void testNotEquals() {
+    String groupInstanceId1 = "some_group_instance_id_1";
+    String groupInstanceId2 = "some_group_instance_id_2";
+    MemberToRemove memberToRemove1 = new MemberToRemove(groupInstanceId1);
+    MemberToRemove memberToRemove2 = new MemberToRemove(groupInstanceId2);
+    assertNotEquals(memberToRemove1, memberToRemove2);
+  }
+
 }
