@@ -1,4 +1,4 @@
-package io.vertx.kafka.admin.tests;
+package io.vertx.kafka.client.tests;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.kafka.admin.MemberToRemove;

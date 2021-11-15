@@ -37,10 +37,7 @@ import io.vertx.kafka.admin.RemoveMembersFromConsumerGroupOptions;
 import io.vertx.kafka.admin.TopicDescription;
 import io.vertx.kafka.admin.*;
 import io.vertx.kafka.admin.impl.KafkaAdminClientImpl;
-import io.vertx.kafka.client.common.ConfigResource;
-import io.vertx.kafka.client.common.Node;
-import io.vertx.kafka.client.common.TopicPartition;
-import io.vertx.kafka.client.common.TopicPartitionInfo;
+import io.vertx.kafka.client.common.*;
 import io.vertx.kafka.client.common.impl.Helper;
 import org.apache.kafka.clients.admin.FeatureMetadata;
 import org.apache.kafka.clients.admin.*;
@@ -48,8 +45,13 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.KafkaFuture;
+import org.apache.kafka.common.acl.AccessControlEntry;
+import org.apache.kafka.common.acl.AclOperation;
+import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.internals.KafkaFutureImpl;
+import org.apache.kafka.common.resource.PatternType;
+import org.apache.kafka.common.resource.ResourceType;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.After;
@@ -1028,6 +1030,42 @@ public class AdminClientTest extends KafkaClusterTestBase {
       assertNotNull(memberToRemoveNew);
       assertEquals(1, removeMembersFromConsumerGroupOptionsNew.members().size());
       assertEquals(groupId, memberToRemoveNew.groupInstanceId());
+      async.complete();
+      adminClient.close();
+    }));
+  }
+
+  @Test
+  public void testCreateAcls(TestContext ctx) {
+    Async async = ctx.async();
+    AdminClient adminClient = mock(AdminClient.class);
+    KafkaAdminClient kafkaAdminClient = spy(new KafkaAdminClientImpl(this.vertx, adminClient));
+
+    ResourcePattern resourcePattern = new ResourcePattern(ResourceType.UNKNOWN, "some_resource_type_name", PatternType.UNKNOWN);
+    AccessControlEntryData accessControlEntryData = new AccessControlEntryData("some_principal", "some_host", AclOperation.UNKNOWN, AclPermissionType.UNKNOWN);
+
+    AclBinding aclBinding = new AclBinding(resourcePattern, accessControlEntryData);
+    List<AclBinding> aclBindings = Collections.singletonList(aclBinding);
+    CreateAclsResult createAclsResult = mock(CreateAclsResult.class);
+    Void v = mock(Void.class);
+    when(createAclsResult.all()).thenReturn(KafkaFuture.completedFuture(v));
+    when(adminClient.createAcls(any(Collection.class))).thenReturn(createAclsResult);
+    kafkaAdminClient.createAcls(aclBindings, ctx.asyncAssertSuccess(v1 -> {
+      verify(kafkaAdminClient).createAcls(aclBindings);
+      ArgumentCaptor<Collection<org.apache.kafka.common.acl.AclBinding>> captor = ArgumentCaptor.forClass(Collection.class);
+      verify(adminClient).createAcls(captor.capture());
+      Collection<org.apache.kafka.common.acl.AclBinding> aclBindingsNew = captor.getValue();
+      assertEquals(1, aclBindingsNew.size());
+      org.apache.kafka.common.acl.AclBinding aclBindingNew = aclBindingsNew.iterator().next();
+      org.apache.kafka.common.resource.ResourcePattern resourcePatternNew = aclBindingNew.pattern();
+      assertEquals(resourcePattern.getResourceType(), resourcePatternNew.resourceType());
+      assertEquals(resourcePattern.getName(), resourcePatternNew.name());
+      assertEquals(resourcePattern.getPatternType(), resourcePatternNew.patternType());
+      AccessControlEntry accessControlEntry = aclBindingNew.entry();
+      assertEquals(accessControlEntryData.getPrincipal(), accessControlEntry.principal());
+      assertEquals(accessControlEntryData.getHost(), accessControlEntry.host());
+      assertEquals(accessControlEntryData.getOperation(), accessControlEntry.operation());
+      assertEquals(accessControlEntryData.getPermissionType(), accessControlEntry.permissionType());
       async.complete();
       adminClient.close();
     }));

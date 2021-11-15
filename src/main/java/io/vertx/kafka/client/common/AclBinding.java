@@ -2,6 +2,8 @@ package io.vertx.kafka.client.common;
 
 import io.vertx.core.json.JsonObject;
 
+import java.util.Objects;
+
 public class AclBinding {
   private ResourcePattern resourcePattern;
   private AccessControlEntryData entryData;
@@ -47,6 +49,25 @@ public class AclBinding {
       "resourcePattern=" + resourcePattern +
       ",entryData=" + entryData +
       "}";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    AclBinding that = (AclBinding) o;
+    return (
+      Objects.equals(resourcePattern, that.resourcePattern) &&
+        Objects.equals(entryData, that.entryData)
+    );
+  }
+
+  @Override
+  public int hashCode() {
+    int result = 1;
+    result = 31 * result + (resourcePattern != null ? resourcePattern.hashCode() : 0);
+    result = 31 * result + (entryData != null ? entryData.hashCode() : 0);
+    return result;
   }
 
 }

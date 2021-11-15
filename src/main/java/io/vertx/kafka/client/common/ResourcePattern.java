@@ -4,6 +4,8 @@ import io.vertx.core.json.JsonObject;
 import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourceType;
 
+import java.util.Objects;
+
 public class ResourcePattern {
   private ResourceType resourceType;
   private String name;
@@ -62,9 +64,30 @@ public class ResourcePattern {
   public String toString() {
     return "ResourcePattern{" +
       "resourceType=" + this.resourceType +
-      ", name=" + this.name +
-      ", patternType=" + this.patternType +
+      ",name=" + this.name +
+      ",patternType=" + this.patternType +
       "}";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ResourcePattern that = (ResourcePattern) o;
+    return (
+      Objects.equals(resourceType, that.resourceType) &&
+        Objects.equals(name, that.name) &&
+        Objects.equals(patternType, that.patternType)
+    );
+  }
+
+  @Override
+  public int hashCode() {
+    int result = 1;
+    result = 31 * result + (resourceType != null ? resourceType.hashCode() : 0);
+    result = 31 * result + (name != null ? name.hashCode() : 0);
+    result = 31 * result + (patternType != null ? patternType.hashCode() : 0);
+    return  result;
   }
 
 }

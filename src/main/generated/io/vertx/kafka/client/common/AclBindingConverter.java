@@ -29,10 +29,10 @@ public class AclBindingConverter {
 
   public static void toJson(AclBinding obj, Map<String, Object> json) {
     if (obj.getResourcePattern() != null) {
-      json.put("resourcePattern", obj.getResourcePattern());
+      json.put("resourcePattern", obj.getResourcePattern().toJson());
     }
     if (obj.getEntryData() != null) {
-      json.put("entryData", obj.getEntryData());
+      json.put("entryData", obj.getEntryData().toJson());
     }
   }
 }

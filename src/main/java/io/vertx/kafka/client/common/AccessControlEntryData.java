@@ -4,6 +4,8 @@ import io.vertx.core.json.JsonObject;
 import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.acl.AclPermissionType;
 
+import java.util.Objects;
+
 public class AccessControlEntryData {
   private String principal;
   private String host;
@@ -22,6 +24,12 @@ public class AccessControlEntryData {
 
   public AccessControlEntryData(JsonObject json) {
     AccessControlEntryDataConverter.fromJson(json, this);
+  }
+
+  public JsonObject toJson() {
+    JsonObject json = new JsonObject();
+    AccessControlEntryDataConverter.toJson(this, json);
+    return json;
   }
 
   public String getPrincipal() {
@@ -72,5 +80,28 @@ public class AccessControlEntryData {
       ",operation=" + this.operation +
       ",permissionType=" + this.permissionType +
       "}";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    AccessControlEntryData that = (AccessControlEntryData) o;
+    return (
+      Objects.equals(principal, that.principal) &&
+        Objects.equals(host, that.host) &&
+        Objects.equals(operation, that.operation) &&
+        Objects.equals(permissionType, that.permissionType)
+    );
+  }
+
+  @Override
+  public int hashCode() {
+    int result = 1;
+    result = 31 * result + (principal != null ? principal.hashCode() : 0);
+    result = 31 * result + (host != null ? host.hashCode() : 0);
+    result = 31 * result + (operation != null ? operation.hashCode() : 0);
+    result = 31 * result + (permissionType != null ? permissionType.hashCode() : 0);
+    return result;
   }
 }

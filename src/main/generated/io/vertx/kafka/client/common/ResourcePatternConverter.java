@@ -12,18 +12,18 @@ public class ResourcePatternConverter {
     for (Map.Entry<String, Object> member : json) {
       switch (member.getKey()) {
         case "resourceType":
-          if (member.getValue() instanceof JsonObject) {
+          if (member.getValue() instanceof String) {
             obj.setResourceType(ResourceType.valueOf((String) member.getValue()));
-          }
-          break;
-        case "patternType":
-          if (member.getValue() instanceof JsonObject) {
-            obj.setPatternType(PatternType.valueOf((String) member.getValue()));
           }
           break;
         case "name":
           if (member.getValue() instanceof String) {
             obj.setName((String) member.getValue());
+          }
+          break;
+        case "patternType":
+          if (member.getValue() instanceof String) {
+            obj.setPatternType(PatternType.valueOf((String) member.getValue()));
           }
           break;
       }
@@ -38,11 +38,11 @@ public class ResourcePatternConverter {
     if (obj.getResourceType() != null) {
       json.put("resourceType", obj.getResourceType().name());
     }
-    if (obj.getPatternType() != null) {
-      json.put("patternType", obj.getPatternType().name());
-    }
     if (obj.getName() != null) {
       json.put("name", obj.getName());
+    }
+    if (obj.getPatternType() != null) {
+      json.put("patternType", obj.getPatternType().name());
     }
   }
 
