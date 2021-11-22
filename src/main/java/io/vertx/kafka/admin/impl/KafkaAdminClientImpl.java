@@ -51,8 +51,8 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   private AdminClient adminClient;
 
   public KafkaAdminClientImpl(Vertx vertx, AdminClient adminClient) {
-    this.vertx = vertx;
-    this.adminClient = adminClient;
+      this.vertx = vertx;
+      this.adminClient = adminClient;
   }
 
   @Override
@@ -79,7 +79,7 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
 
             TopicPartitionInfo topicPartitionInfo = new TopicPartitionInfo();
             topicPartitionInfo.setIsr(
-                kafkaPartitionInfo.isr().stream().map(Helper::from).collect(Collectors.toList()))
+              kafkaPartitionInfo.isr().stream().map(Helper::from).collect(Collectors.toList()))
               .setLeader(Helper.from(kafkaPartitionInfo.leader()))
               .setPartition(kafkaPartitionInfo.partition())
               .setReplicas(
@@ -226,7 +226,7 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   }
 
   @Override
-  public void alterConfigs(Map<ConfigResource, Config> configs, Handler<AsyncResult<Void>> completionHandler) {
+  public void alterConfigs(Map<ConfigResource,Config> configs, Handler<AsyncResult<Void>> completionHandler) {
     alterConfigs(configs).onComplete(completionHandler);
   }
 
@@ -284,7 +284,7 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
       if (ex == null) {
         Map<String, ConsumerGroupDescription> consumerGroups = new HashMap<>();
 
-        for (Map.Entry<String, org.apache.kafka.clients.admin.ConsumerGroupDescription> cgDescriptionEntry : cg.entrySet()) {
+        for (Map.Entry<String, org.apache.kafka.clients.admin.ConsumerGroupDescription> cgDescriptionEntry: cg.entrySet()) {
           List<MemberDescription> members = new ArrayList<>();
 
           for (org.apache.kafka.clients.admin.MemberDescription memberDescription : cgDescriptionEntry.getValue().members()) {
@@ -430,7 +430,7 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
           });
           ClusterDescription clusterDescription = new ClusterDescription(clusterId, controller, nodes);
           promise.complete(clusterDescription);
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException|ExecutionException e) {
           promise.fail(e);
         }
       } else {
