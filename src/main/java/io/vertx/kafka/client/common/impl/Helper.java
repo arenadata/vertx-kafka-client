@@ -65,8 +65,8 @@ public class Helper {
 
   public static Map<String, org.apache.kafka.clients.admin.NewPartitions> toPartitions(Map<String, NewPartitions> newPartitions) {
     return newPartitions.entrySet().stream().collect(Collectors.toMap(
-      e -> e.getKey(),
-      e -> org.apache.kafka.clients.admin.NewPartitions.increaseTo(e.getValue().getTotalCount(), e.getValue().getNewAssignments()))
+            e -> e.getKey(),
+            e -> org.apache.kafka.clients.admin.NewPartitions.increaseTo(e.getValue().getTotalCount(), e.getValue().getNewAssignments()))
     );
   }
 
@@ -131,10 +131,10 @@ public class Helper {
 
   public static Map<TopicPartition, OffsetAndTimestamp> fromTopicPartitionOffsetAndTimestamp(Map<org.apache.kafka.common.TopicPartition, org.apache.kafka.clients.consumer.OffsetAndTimestamp> topicPartitionOffsetAndTimestamps) {
     return topicPartitionOffsetAndTimestamps.entrySet().stream()
-      .filter(e -> e.getValue() != null)
+      .filter(e-> e.getValue() != null)
       .collect(Collectors.toMap(
         e -> new TopicPartition(e.getKey().topic(), e.getKey().partition()),
-        e -> new OffsetAndTimestamp(e.getValue().offset(), e.getValue().timestamp()))
+        e ->new OffsetAndTimestamp(e.getValue().offset(), e.getValue().timestamp()))
       );
   }
 
@@ -178,9 +178,9 @@ public class Helper {
   public static Map<org.apache.kafka.common.config.ConfigResource, Collection<AlterConfigOp>> toConfigMaps(Map<ConfigResource, Config> configs) {
 
     return configs.entrySet().stream().collect(Collectors.toMap(
-      e -> new org.apache.kafka.common.config.ConfigResource(e.getKey().getType(), e.getKey().getName()),
-      e -> e.getValue().getEntries().stream().map(
-        v -> new AlterConfigOp(to(v), AlterConfigOp.OpType.SET)).collect(Collectors.toList())));
+            e -> new org.apache.kafka.common.config.ConfigResource(e.getKey().getType(), e.getKey().getName()),
+            e -> e.getValue().getEntries().stream().map(
+                    v -> new AlterConfigOp(to(v), AlterConfigOp.OpType.SET)).collect(Collectors.toList())));
 
   }
 
