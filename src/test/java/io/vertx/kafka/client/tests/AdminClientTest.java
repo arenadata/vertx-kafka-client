@@ -102,7 +102,7 @@ public class AdminClientTest extends KafkaClusterTestBase {
 
     // timer because, Kafka cluster takes time to create topics
     vertx.setTimer(1000, t -> {
-      adminClient.listTopics(ctx.asyncAssertSuccess(res -> {
+      adminClient.listTopics(ctx.asyncAssertSuccess(res ->{
         ctx.assertTrue(res.containsAll(topics), "Was expecting topics " + topics + " to be in " + res);
 
         adminClient.close();
@@ -147,7 +147,7 @@ public class AdminClientTest extends KafkaClusterTestBase {
 
     KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
 
-    adminClient.createTopics(Collections.singletonList(new NewTopic("testCreateTopic", 1, (short) 1)), ctx.asyncAssertSuccess(v -> {
+    adminClient.createTopics(Collections.singletonList(new NewTopic("testCreateTopic", 1, (short)1)), ctx.asyncAssertSuccess(v -> {
       adminClient.describeTopics(Collections.singletonList("testCreateTopic"), ctx.asyncAssertSuccess(topics -> {
         TopicDescription topicDescription = topics.get("testCreateTopic");
 
@@ -167,7 +167,7 @@ public class AdminClientTest extends KafkaClusterTestBase {
 
     KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
 
-    NewTopic newTopic = new NewTopic("testCreateTopicWithConfigs", 1, (short) 1);
+    NewTopic newTopic = new NewTopic("testCreateTopicWithConfigs", 1, (short)1);
     newTopic.setConfig(Collections.singletonMap("segment.bytes", "1000"));
 
     adminClient.createTopics(Collections.singletonList(newTopic), ctx.asyncAssertSuccess(v -> {
@@ -276,8 +276,7 @@ public class AdminClientTest extends KafkaClusterTestBase {
 
     kafkaCluster.useTo().consume("groupId", "clientId", OffsetResetStrategy.EARLIEST,
       new StringDeserializer(), new StringDeserializer(), () -> true, null, null,
-      Collections.singleton("first-topic"), c -> {
-      });
+      Collections.singleton("first-topic"), c -> { });
 
     // timer because, Kafka cluster takes time to start consumer
     vertx.setTimer(1000, t -> {
@@ -304,8 +303,7 @@ public class AdminClientTest extends KafkaClusterTestBase {
 
     kafkaCluster.useTo().consume("groupId", "clientId", OffsetResetStrategy.EARLIEST,
       new StringDeserializer(), new StringDeserializer(), () -> true, null, null,
-      Collections.singleton("first-topic"), c -> {
-      });
+      Collections.singleton("first-topic"), c -> { });
 
     // timer because, Kafka cluster takes time to start consumer
     vertx.setTimer(1000, t -> {
@@ -344,20 +342,17 @@ public class AdminClientTest extends KafkaClusterTestBase {
     groupIsEmpty.set(true);
     kafkaCluster.useTo().consume("groupId-1", "clientId-1", OffsetResetStrategy.EARLIEST,
       new StringDeserializer(), new StringDeserializer(), groupIsEmpty::get, null, consumeAsync::complete,
-      Collections.singleton("first-topic"), c -> {
-        groupIsEmpty.set(false);
-      });
+      Collections.singleton("first-topic"), c -> { groupIsEmpty.set(false); });
 
     kafkaCluster.useTo().consume("groupId-2", "clientId-2", OffsetResetStrategy.EARLIEST,
       new StringDeserializer(), new StringDeserializer(), () -> true, null, null,
-      Collections.singleton("first-topic"), c -> {
-      });
+      Collections.singleton("first-topic"), c -> { });
 
     kafkaCluster.useTo().produceIntegers("first-topic", 6, 1, null);
 
     consumeAsync.awaitSuccess(10000);
 
-    adminClient.deleteConsumerGroups(Collections.singletonList("groupId-1"), ctx.asyncAssertSuccess(v -> {
+      adminClient.deleteConsumerGroups(Collections.singletonList("groupId-1"), ctx.asyncAssertSuccess(v -> {
 
       adminClient.listConsumerGroups(ctx.asyncAssertSuccess(groups -> {
 
@@ -438,11 +433,10 @@ public class AdminClientTest extends KafkaClusterTestBase {
 
     }
 
-    assertEquals(3, (int) consumers.get("my-topic"));
-    assertEquals(2, (int) consumers.get("your-topic"));
-    assertEquals(2, (int) consumers.get("his-topic"));
+    assertEquals(3, (int)consumers.get("my-topic"));
+    assertEquals(2, (int)consumers.get("your-topic"));
+    assertEquals(2, (int)consumers.get("his-topic"));
   }
-
   @Test
   public void testDescribeCluster(TestContext ctx) {
 
@@ -502,9 +496,7 @@ public class AdminClientTest extends KafkaClusterTestBase {
 
     kafkaCluster.useTo().consume(groupId, clientId, OffsetResetStrategy.EARLIEST, new StringDeserializer(), new IntegerDeserializer(),
       () -> counter.get() < 6, offsetCommitCallback, consumerAsync::complete, Collections.singletonList(topicName),
-      record -> {
-        counter.incrementAndGet();
-      });
+      record -> { counter.incrementAndGet(); });
     consumerAsync.awaitSuccess(10000);
 
     final KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
@@ -547,9 +539,7 @@ public class AdminClientTest extends KafkaClusterTestBase {
 
     kafkaCluster.useTo().consume(groupId, clientId, OffsetResetStrategy.EARLIEST, new StringDeserializer(), new IntegerDeserializer(),
       () -> counter.get() < 6, offsetCommitCallback, consumerAsync::complete, Collections.singletonList(topicName),
-      record -> {
-        counter.incrementAndGet();
-      });
+      record -> { counter.incrementAndGet(); });
     consumerAsync.awaitSuccess(10000);
 
     final KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
@@ -592,10 +582,8 @@ public class AdminClientTest extends KafkaClusterTestBase {
     final Async consumerAsync = ctx.async();
 
     kafkaCluster.useTo().consume(groupId, clientId, OffsetResetStrategy.EARLIEST, new StringDeserializer(), new IntegerDeserializer(),
-      () -> counter.get() < 6, offsetCommitCallback, consumerAsync::complete, Collections.singletonList(topicName),
-      record -> {
-        counter.incrementAndGet();
-      });
+            () -> counter.get() < 6, offsetCommitCallback, consumerAsync::complete, Collections.singletonList(topicName),
+            record -> { counter.incrementAndGet(); });
     consumerAsync.awaitSuccess(10000);
 
     final KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
@@ -719,13 +707,14 @@ public class AdminClientTest extends KafkaClusterTestBase {
   }
 
 
+
   @Test
   public void testCreatePartitionInTopicWithAssignment(TestContext ctx) throws IOException {
     KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
 
     kafkaCluster.createTopic("testCreatePartitionInTopicWithAssignment", 1, 1);
 
-    Async async = ctx.async();
+   Async async = ctx.async();
 
     // timer because, Kafka cluster takes time to create topics
     vertx.setTimer(1000, t -> {
@@ -998,4 +987,3 @@ public class AdminClientTest extends KafkaClusterTestBase {
       }));
   }
 }
-
