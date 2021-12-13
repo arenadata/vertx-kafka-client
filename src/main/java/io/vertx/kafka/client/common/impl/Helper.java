@@ -25,6 +25,7 @@ import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import io.vertx.kafka.client.consumer.OffsetAndTimestamp;
 import io.vertx.kafka.client.producer.RecordMetadata;
 import org.apache.kafka.clients.admin.AlterConfigOp;
+import org.apache.kafka.common.requests.DescribeLogDirsResponse;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -240,6 +241,11 @@ public class Helper {
   public static ListOffsetsResultInfo from(org.apache.kafka.clients.admin.ListOffsetsResult.ListOffsetsResultInfo lori) {
     return new ListOffsetsResultInfo(lori.offset(), lori.timestamp(), lori.leaderEpoch().orElse(null));
   }
+
+  public static ReplicaInfo from(DescribeLogDirsResponse.ReplicaInfo replicaInfo) {
+    return new ReplicaInfo(replicaInfo.size, replicaInfo.offsetLag, replicaInfo.isFuture);
+  }
+}
 
   public static org.apache.kafka.common.quota.ClientQuotaEntity to(ClientQuotaEntity clientQuotaEntity) {
     return new org.apache.kafka.common.quota.ClientQuotaEntity(clientQuotaEntity.getEntries());

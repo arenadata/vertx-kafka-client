@@ -337,4 +337,11 @@ public interface KafkaAdminClient {
 
   @GenIgnore
   Future<Map<ClientQuotaEntity, Map<String, Double>>> describeClientQuotas(ClientQuotaFilter filter);
+
+  @GenIgnore
+  void describeLogDirs(List<Integer> brokerIds, Handler<AsyncResult<Map<Integer, List<LogDirInfo>>>> completionHandler);
+
+  @GenIgnore
+  Future<Map<Integer, List<LogDirInfo>>> describeLogDirs(List<Integer> brokerIds);
+
 }
