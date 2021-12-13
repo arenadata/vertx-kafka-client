@@ -16,27 +16,6 @@
 
 package io.vertx.kafka.client.tests;
 
-import io.vertx.kafka.admin.*;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -66,9 +45,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import io.vertx.core.Vertx;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -869,9 +845,9 @@ public class AdminClientTest extends KafkaClusterTestBase {
   public void testDescribeLogDirsWithMessages(TestContext ctx) {
     KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
     Async async = ctx.async();
-    adminClient.createTopics(Collections.singletonList(new NewTopic("testDescribeTopic", 1, (short) 1)),
+    adminClient.createTopics(Collections.singletonList(new NewTopic("testDescribeTopic2", 1, (short) 1)),
       ctx.asyncAssertSuccess(v -> {
-        kafkaCluster.useTo().produceIntegers("testDescribeTopic", 6, 1, () -> {
+        kafkaCluster.useTo().produceIntegers("testDescribeTopic2", 6, 1, () -> {
           adminClient.describeLogDirs(Stream.of(1, 2).collect(Collectors.toList()), ctx.asyncAssertSuccess(map -> {
             List<LogDirInfo> infosBroker1 = map.get(1);
             List<LogDirInfo> infosBroker2 = map.get(2);
@@ -883,17 +859,17 @@ public class AdminClientTest extends KafkaClusterTestBase {
 
             ctx.assertTrue(
               infosBroker1.get(0).getReplicaInfos().stream()
-                .filter(f -> f.getTopicPartition().topic().equals("testDescribeTopic"))
+                .filter(f -> f.getTopicPartition().topic().equals("testDescribeTopic2"))
                 .map(i -> i.getReplicaInfo().getSize())
                 .reduce(0L, Long::sum)
                 +
                 infosBroker2.get(0).getReplicaInfos().stream()
-                  .filter(f -> f.getTopicPartition().topic().equals("testDescribeTopic"))
+                  .filter(f -> f.getTopicPartition().topic().equals("testDescribeTopic2"))
                   .map(i -> i.getReplicaInfo().getSize())
                   .reduce(0L, Long::sum)
                 > 0L);
 
-            adminClient.deleteTopics(Collections.singletonList("testDescribeTopic"), ctx.asyncAssertSuccess(v1 -> {
+            adminClient.deleteTopics(Collections.singletonList("testDescribeTopic2"), ctx.asyncAssertSuccess(v1 -> {
               async.complete();
               adminClient.close();
             }));

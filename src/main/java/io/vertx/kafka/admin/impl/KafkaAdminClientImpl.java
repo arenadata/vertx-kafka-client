@@ -44,11 +44,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
 public class KafkaAdminClientImpl implements KafkaAdminClient {
 
   private Vertx vertx;

@@ -245,7 +245,7 @@ public class Helper {
   public static ReplicaInfo from(DescribeLogDirsResponse.ReplicaInfo replicaInfo) {
     return new ReplicaInfo(replicaInfo.size, replicaInfo.offsetLag, replicaInfo.isFuture);
   }
-}
+
 
   public static org.apache.kafka.common.quota.ClientQuotaEntity to(ClientQuotaEntity clientQuotaEntity) {
     return new org.apache.kafka.common.quota.ClientQuotaEntity(clientQuotaEntity.getEntries());

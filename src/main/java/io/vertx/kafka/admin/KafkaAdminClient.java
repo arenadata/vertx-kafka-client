@@ -17,22 +17,18 @@
 package io.vertx.kafka.admin;
 
 import io.vertx.codegen.annotations.GenIgnore;
-import io.vertx.core.Future;
-import io.vertx.kafka.client.common.ConfigResource;
-import org.apache.kafka.clients.admin.AdminClient;
-
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.kafka.admin.impl.KafkaAdminClientImpl;
+import io.vertx.kafka.client.common.ConfigResource;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import org.apache.kafka.clients.admin.AdminClient;
+
+import java.util.*;
 
 /**
  * Vert.x Kafka Admin client implementation
