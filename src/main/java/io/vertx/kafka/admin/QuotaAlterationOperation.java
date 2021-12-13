@@ -54,4 +54,25 @@ public class QuotaAlterationOperation {
       ", value=" + value +
       '}';
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    QuotaAlterationOperation that = (QuotaAlterationOperation) o;
+
+    if (Double.compare(that.value, value) != 0) return false;
+    return key != null ? key.equals(that.key) : that.key == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result;
+    long temp;
+    result = key != null ? key.hashCode() : 0;
+    temp = Double.doubleToLongBits(value);
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
 }

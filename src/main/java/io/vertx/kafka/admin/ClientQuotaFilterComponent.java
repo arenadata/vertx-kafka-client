@@ -55,4 +55,22 @@ public class ClientQuotaFilterComponent {
       ", match='" + match + '\'' +
       '}';
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ClientQuotaFilterComponent that = (ClientQuotaFilterComponent) o;
+
+    if (entityType != null ? !entityType.equals(that.entityType) : that.entityType != null) return false;
+    return match != null ? match.equals(that.match) : that.match == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = entityType != null ? entityType.hashCode() : 0;
+    result = 31 * result + (match != null ? match.hashCode() : 0);
+    return result;
+  }
 }

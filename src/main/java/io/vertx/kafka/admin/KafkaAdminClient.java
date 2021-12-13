@@ -332,7 +332,9 @@ public interface KafkaAdminClient {
   @GenIgnore
   Future<Void> alterClientQuotas(List<ClientQuotaAlteration> entries);
 
+  @GenIgnore
   void describeClientQuotas(ClientQuotaFilter filter, Handler<AsyncResult<Map<ClientQuotaEntity, Map<String, Double>>>> completionHandler);
 
+  @GenIgnore
   Future<Map<ClientQuotaEntity, Map<String, Double>>> describeClientQuotas(ClientQuotaFilter filter);
 }

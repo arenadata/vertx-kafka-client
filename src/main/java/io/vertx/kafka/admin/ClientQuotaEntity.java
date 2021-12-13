@@ -45,4 +45,19 @@ public class ClientQuotaEntity {
       "entries=" + entries +
       '}';
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ClientQuotaEntity that = (ClientQuotaEntity) o;
+
+    return entries != null ? entries.equals(that.entries) : that.entries == null;
+  }
+
+  @Override
+  public int hashCode() {
+    return entries != null ? entries.hashCode() : 0;
+  }
 }

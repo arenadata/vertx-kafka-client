@@ -54,4 +54,22 @@ public class ClientQuotaAlteration {
       ", ops=" + ops +
       '}';
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ClientQuotaAlteration that = (ClientQuotaAlteration) o;
+
+    if (entity != null ? !entity.equals(that.entity) : that.entity != null) return false;
+    return ops != null ? ops.equals(that.ops) : that.ops == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = entity != null ? entity.hashCode() : 0;
+    result = 31 * result + (ops != null ? ops.hashCode() : 0);
+    return result;
+  }
 }

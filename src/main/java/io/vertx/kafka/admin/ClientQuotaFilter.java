@@ -67,4 +67,22 @@ public class ClientQuotaFilter {
       ", strict=" + strict +
       '}';
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ClientQuotaFilter that = (ClientQuotaFilter) o;
+
+    if (strict != that.strict) return false;
+    return components != null ? components.equals(that.components) : that.components == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = components != null ? components.hashCode() : 0;
+    result = 31 * result + (strict ? 1 : 0);
+    return result;
+  }
 }

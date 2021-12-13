@@ -751,17 +751,35 @@ public class AdminClientTest extends KafkaClusterTestBase {
   }
 
   @Test
-  public void testDescribeClientQuotas(TestContext ctx) {
+  public void testAlterAndDescribeClientQuotas(TestContext ctx) {
     KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
-
     Async async = ctx.async();
 
     ClientQuotaFilter clientQuotaFilter = ClientQuotaFilter.all();
     adminClient.describeClientQuotas(clientQuotaFilter, ctx.asyncAssertSuccess(quotas -> {
       ctx.assertEquals(quotas.size(), 0);
+    }));
+
+    adminClient.alterClientQuotas(Collections.singletonList(
+      new ClientQuotaAlteration()
+        .setEntity(new ClientQuotaEntity(Collections.singletonMap("user", "test")))
+        .setOps(Collections.singletonList(new QuotaAlterationOperation("producer_byte_rate",Double.parseDouble("1024"))))), ctx.asyncAssertSuccess(v -> {
+          adminClient.describeClientQuotas(ClientQuotaFilter.all(), ctx.asyncAssertSuccess(quotas -> {
+            ctx.assertEquals(quotas.size(), 1);
+            ctx.assertEquals(quotas,
+              Collections.singletonMap(new ClientQuotaEntity(Collections.singletonMap("user","test")),
+                Collections.singletonMap("producer_byte_rate",Double.parseDouble("1024"))));
+          }));
+    }));
+
+    ClientQuotaFilter clientQuotaFilter2 = ClientQuotaFilter.contains(Collections.singletonList(new ClientQuotaFilterComponent("user","test")));
+    adminClient.describeClientQuotas(clientQuotaFilter2, ctx.asyncAssertSuccess(quotas -> {
+      ctx.assertEquals(quotas.size(), 1);
+      ctx.assertEquals(quotas,
+        Collections.singletonMap(new ClientQuotaEntity(Collections.singletonMap("user","test")),
+          Collections.singletonMap("producer_byte_rate",Double.parseDouble("1024"))));
       adminClient.close();
       async.complete();
     }));
-
   }
 }
