@@ -340,4 +340,11 @@ public interface KafkaAdminClient {
   @GenIgnore
   Future<Map<Integer, List<LogDirInfo>>> describeLogDirs(List<Integer> brokerIds);
 
+
+  @GenIgnore
+  void deleteRecords(Map<TopicPartition, Long> recordsToDelete, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> deleteRecords(Map<TopicPartition, Long> recordsToDelete);
+
 }
