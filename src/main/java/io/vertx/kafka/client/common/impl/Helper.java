@@ -245,6 +245,10 @@ public class Helper {
     return new org.apache.kafka.common.quota.ClientQuotaEntity(clientQuotaEntity.getEntries());
   }
 
+  public static ClientQuotaEntity from(org.apache.kafka.common.quota.ClientQuotaEntity clientQuotaEntity) {
+    return new ClientQuotaEntity(clientQuotaEntity.entries());
+  }
+
   public static org.apache.kafka.common.quota.ClientQuotaAlteration.Op to(QuotaAlterationOperation quotaAlterationOperation) {
     return new org.apache.kafka.common.quota.ClientQuotaAlteration
       .Op(quotaAlterationOperation.getKey(), quotaAlterationOperation.getValue());
@@ -258,4 +262,8 @@ public class Helper {
     return new org.apache.kafka.common.quota.ClientQuotaAlteration(
       to(clientQuotaAlteration.getEntity()), to(clientQuotaAlteration.getOps()));
   }
-}
+
+  public static org.apache.kafka.common.quota.ClientQuotaFilterComponent to(ClientQuotaFilterComponent clientQuotaFilterComponent) {
+    return org.apache.kafka.common.quota.ClientQuotaFilterComponent.ofEntity(clientQuotaFilterComponent.getEntityType(), clientQuotaFilterComponent.getMatch());
+  }
+ }

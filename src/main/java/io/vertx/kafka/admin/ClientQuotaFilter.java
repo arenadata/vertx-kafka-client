@@ -3,6 +3,7 @@ package io.vertx.kafka.admin;
 import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;
 
+import java.util.Collections;
 import java.util.List;
 
 @DataObject(generateConverter = true)
@@ -12,6 +13,18 @@ public class ClientQuotaFilter {
   private boolean strict;
 
   public ClientQuotaFilter() {
+  }
+
+  public static ClientQuotaFilter all() {
+    return new ClientQuotaFilter(Collections.emptyList(), false);
+  }
+
+  public static ClientQuotaFilter contains(List<ClientQuotaFilterComponent> components) {
+    return new ClientQuotaFilter(components, false);
+  }
+
+  public static ClientQuotaFilter containsOnly(List<ClientQuotaFilterComponent> components) {
+    return new ClientQuotaFilter(components, true);
   }
 
   public ClientQuotaFilter(List<ClientQuotaFilterComponent> components, boolean strict) {

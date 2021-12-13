@@ -522,14 +522,42 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
 
   @Override
   public void describeClientQuotas(ClientQuotaFilter filter, Handler<AsyncResult<Map<ClientQuotaEntity, Map<String, Double>>>> completionHandler) {
-    alterClientQuotas(filter).onComplete(completionHandler);
+    describeClientQuotas(filter).onComplete(completionHandler);
   }
 
   @Override
-  public Future<Map<ClientQuotaEntity, Map<String, Double>>> alterClientQuotas(ClientQuotaFilter filter) {
+  public Future<Map<ClientQuotaEntity, Map<String, Double>>> describeClientQuotas(ClientQuotaFilter filter) {
     ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
-    Promise<Void> promise = ctx.promise();
-    //DescribeClientQuotasResult describeClientQuotasResult = this.adminClient.describeClientQuotas();
-    return null;
+    Promise<Map<ClientQuotaEntity, Map<String, Double>>> promise = ctx.promise();
+    describeClientQuotasInner(filter, promise);
+    return promise.future();
+  }
+
+  private void describeClientQuotasInner(ClientQuotaFilter filter, Promise<Map<ClientQuotaEntity, Map<String, Double>>> promise) {
+    try {
+      org.apache.kafka.common.quota.ClientQuotaFilter clientQuotaFilter = org.apache.kafka.common.quota.ClientQuotaFilter.all();
+      List<org.apache.kafka.common.quota.ClientQuotaFilterComponent> components = filter.getComponents().stream().map(Helper::to).collect(Collectors.toList());
+
+      if (!filter.getComponents().isEmpty() && filter.isStrict()) {
+        clientQuotaFilter = org.apache.kafka.common.quota.ClientQuotaFilter.containsOnly(components);
+      } else if (!filter.getComponents().isEmpty() && !filter.isStrict()) {
+        clientQuotaFilter = org.apache.kafka.common.quota.ClientQuotaFilter.contains(components);
+      }
+
+      DescribeClientQuotasResult describeClientQuotasResult = this.adminClient.describeClientQuotas(clientQuotaFilter);
+
+      describeClientQuotasResult.entities().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete(v.entrySet().stream().collect(Collectors.toMap(
+            e -> Helper.from(e.getKey()),
+            Map.Entry::getValue
+          )));
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
   }
 }

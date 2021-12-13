@@ -16,7 +16,8 @@
 
 package io.vertx.kafka.client.tests;
 
-import io.vertx.kafka.admin.ConsumerGroupListing;
+import io.vertx.kafka.admin.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,16 +37,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import io.vertx.kafka.admin.Config;
-import io.vertx.kafka.admin.ConfigEntry;
-import io.vertx.kafka.admin.ConsumerGroupDescription;
-import io.vertx.kafka.admin.ListOffsetsResultInfo;
-import io.vertx.kafka.admin.MemberAssignment;
-import io.vertx.kafka.admin.MemberDescription;
-import io.vertx.kafka.admin.NewPartitions;
-import io.vertx.kafka.admin.NewTopic;
-import io.vertx.kafka.admin.OffsetSpec;
-import io.vertx.kafka.admin.TopicDescription;
 import io.vertx.kafka.client.common.ConfigResource;
 import io.vertx.kafka.client.common.Node;
 import io.vertx.kafka.client.common.TopicPartition;
@@ -65,7 +56,6 @@ import org.junit.Test;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
-import io.vertx.kafka.admin.KafkaAdminClient;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -758,5 +748,20 @@ public class AdminClientTest extends KafkaClusterTestBase {
     adminClient.listTopics(ctx.asyncAssertSuccess(topics -> {
       adminClient.close(ctx.asyncAssertSuccess());
     }));
+  }
+
+  @Test
+  public void testDescribeClientQuotas(TestContext ctx) {
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+
+    Async async = ctx.async();
+
+    ClientQuotaFilter clientQuotaFilter = ClientQuotaFilter.all();
+    adminClient.describeClientQuotas(clientQuotaFilter, ctx.asyncAssertSuccess(quotas -> {
+      ctx.assertEquals(quotas.size(), 0);
+      adminClient.close();
+      async.complete();
+    }));
+
   }
 }
