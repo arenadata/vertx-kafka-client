@@ -470,7 +470,11 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   public Future<Void> electLeaders(ElectionType electionType, Set<TopicPartition> partitions) {
     ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
     Promise<Void> promise = ctx.promise();
+    electLeadersInternal(electionType, partitions, promise);
+    return promise.future();
+  }
 
+  private void electLeadersInternal(ElectionType electionType, Set<TopicPartition> partitions, Promise<Void> promise) {
     try {
       ElectLeadersResult electLeadersResult = this.adminClient.electLeaders(Helper.to(electionType), Helper.toTopicPartitionSet(partitions));
       electLeadersResult.all().whenComplete((p, ex) -> {
@@ -483,7 +487,6 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
     } catch (Exception e) {
       promise.fail(e);
     }
-    return promise.future();
   }
 
   @Override

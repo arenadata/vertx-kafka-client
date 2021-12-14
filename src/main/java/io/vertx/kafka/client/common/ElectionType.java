@@ -24,6 +24,10 @@ public enum ElectionType {
     }
   }
 
+  public static ElectionType valueOf(JsonObject json) {
+    return ElectionType.valueOf(json.getString("electionType"));
+  }
+
   public JsonObject toJson() {
     return new JsonObject().put("electionType", ElectionType.valueOf(this.value));
   }
