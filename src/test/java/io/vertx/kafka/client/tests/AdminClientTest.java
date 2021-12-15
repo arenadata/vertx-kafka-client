@@ -20,15 +20,13 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.kafka.admin.*;
-import io.vertx.kafka.client.common.ConfigResource;
-import io.vertx.kafka.client.common.Node;
-import io.vertx.kafka.client.common.TopicPartition;
-import io.vertx.kafka.client.common.TopicPartitionInfo;
+import io.vertx.kafka.client.common.*;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.config.TopicConfig;
+import org.apache.kafka.common.errors.ElectionNotNeededException;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.After;
@@ -864,9 +862,9 @@ public class AdminClientTest extends KafkaClusterTestBase {
   public void testDescribeLogDirsWithMessages(TestContext ctx) {
     KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
     Async async = ctx.async();
-    adminClient.createTopics(Collections.singletonList(new NewTopic("testDescribeTopic2", 1, (short) 1)),
+    adminClient.createTopics(Collections.singletonList(new NewTopic("testDescribeTopicWithMs", 1, (short) 1)),
       ctx.asyncAssertSuccess(v -> {
-        kafkaCluster.useTo().produceIntegers("testDescribeTopic2", 6, 1, () -> {
+        kafkaCluster.useTo().produceIntegers("testDescribeTopicWithMs", 6, 1, () -> {
           adminClient.describeLogDirs(Stream.of(1, 2).collect(Collectors.toList()), ctx.asyncAssertSuccess(map -> {
             List<LogDirInfo> infosBroker1 = map.get(1);
             List<LogDirInfo> infosBroker2 = map.get(2);
@@ -878,22 +876,44 @@ public class AdminClientTest extends KafkaClusterTestBase {
 
             ctx.assertTrue(
               infosBroker1.get(0).getReplicaInfos().stream()
-                .filter(f -> f.getTopicPartition().topic().equals("testDescribeTopic2"))
+                .filter(f -> f.getTopicPartition().topic().equals("testDescribeTopicWithMs"))
                 .map(i -> i.getReplicaInfo().getSize())
                 .reduce(0L, Long::sum)
                 +
                 infosBroker2.get(0).getReplicaInfos().stream()
-                  .filter(f -> f.getTopicPartition().topic().equals("testDescribeTopic2"))
+                  .filter(f -> f.getTopicPartition().topic().equals("testDescribeTopicWithMs"))
                   .map(i -> i.getReplicaInfo().getSize())
                   .reduce(0L, Long::sum)
                 > 0L);
 
-            adminClient.deleteTopics(Collections.singletonList("testDescribeTopic2"), ctx.asyncAssertSuccess(v1 -> {
+            adminClient.deleteTopics(Collections.singletonList("testDescribeTopicWithMs"), ctx.asyncAssertSuccess(v1 -> {
               async.complete();
               adminClient.close();
             }));
           }));
         });
       }));
+  }
+
+  @Test
+  public void testElectLeaders(TestContext ctx) {
+    final String topicName = "elect-leaders";
+    kafkaCluster.createTopic(topicName, 1, 1);
+
+    final KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    final Async async = ctx.async();
+
+    vertx.setTimer(1000, t ->
+      adminClient.listTopics(ctx.asyncAssertSuccess(topics -> {
+        ctx.assertTrue(topics.contains("elect-leaders"));
+        adminClient.electLeaders(ElectionType.PREFERRED,
+          Collections.singleton(new TopicPartition(topicName, 0)),
+          ctx.asyncAssertFailure(v -> {
+            ctx.assertTrue(v instanceof ElectionNotNeededException);
+            ctx.assertTrue(v.getMessage().equals("Leader election not needed for topic partition."));
+            adminClient.close();
+            async.complete();
+          }));
+      })));
   }
 }

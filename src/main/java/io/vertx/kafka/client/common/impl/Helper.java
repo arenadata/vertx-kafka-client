@@ -19,6 +19,7 @@ package io.vertx.kafka.client.common.impl;
 import io.vertx.core.Handler;
 import io.vertx.kafka.admin.*;
 import io.vertx.kafka.client.common.ConfigResource;
+import io.vertx.kafka.client.common.ElectionType;
 import io.vertx.kafka.client.common.Node;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
@@ -273,3 +274,12 @@ public class Helper {
     return org.apache.kafka.common.quota.ClientQuotaFilterComponent.ofEntity(clientQuotaFilterComponent.getEntityType(), clientQuotaFilterComponent.getMatch());
   }
  }
+
+  public static ElectionType from(org.apache.kafka.common.ElectionType electionType) {
+    return ElectionType.valueOf(electionType.value);
+  }
+
+  public static org.apache.kafka.common.ElectionType to(ElectionType electionType) {
+    return org.apache.kafka.common.ElectionType.valueOf(electionType.value);
+  }
+}
