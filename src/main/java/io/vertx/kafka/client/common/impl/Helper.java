@@ -281,4 +281,19 @@ public class Helper {
   public static org.apache.kafka.common.ElectionType to(ElectionType electionType) {
     return org.apache.kafka.common.ElectionType.valueOf(electionType.value);
   }
+
+  public static org.apache.kafka.clients.admin.MemberToRemove to(MemberToRemove member) {
+    return new org.apache.kafka.clients.admin.MemberToRemove(member.getGroupInstanceId());
+  }
+
+  public static org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions to(RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions) {
+    if (removeMembersFromConsumerGroupOptions.getMembers() != null) {
+      List<org.apache.kafka.clients.admin.MemberToRemove> membersToRemove = removeMembersFromConsumerGroupOptions.getMembers().stream()
+        .map(Helper::to)
+        .collect(Collectors.toList());
+      return new org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions(membersToRemove);
+    } else {
+      return new org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions();
+    }
+  }
 }

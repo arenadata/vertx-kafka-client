@@ -27,6 +27,7 @@ import io.vertx.kafka.admin.MemberDescription;
 import io.vertx.kafka.admin.NewPartitions;
 import io.vertx.kafka.admin.NewTopic;
 import io.vertx.kafka.admin.OffsetSpec;
+import io.vertx.kafka.admin.RemoveMembersFromConsumerGroupOptions;
 import io.vertx.kafka.admin.TopicDescription;
 import io.vertx.kafka.admin.*;
 import io.vertx.kafka.client.common.*;
@@ -652,6 +653,34 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
             e -> Helper.from(e.getKey()),
             Map.Entry::getValue
           )));
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void removeMembersFromConsumerGroup(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions, Handler<AsyncResult<Void>> completionHandler) {
+    removeMembersFromConsumerGroup(groupId,removeMembersFromConsumerGroupOptions).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Void> removeMembersFromConsumerGroup(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+    removeMembersFromConsumerGroupInternal(groupId, removeMembersFromConsumerGroupOptions, promise);
+    return promise.future();
+  }
+
+  private void removeMembersFromConsumerGroupInternal(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions, Promise<Void> promise) {
+    try {
+      RemoveMembersFromConsumerGroupResult removeMembersFromConsumerGroupResult = this.adminClient.removeMembersFromConsumerGroup(groupId, Helper.to(removeMembersFromConsumerGroupOptions));
+      removeMembersFromConsumerGroupResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete();
         } else {
           promise.fail(ex);
         }
