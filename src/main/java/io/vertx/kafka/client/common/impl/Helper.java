@@ -273,7 +273,6 @@ public class Helper {
   public static org.apache.kafka.common.quota.ClientQuotaFilterComponent to(ClientQuotaFilterComponent clientQuotaFilterComponent) {
     return org.apache.kafka.common.quota.ClientQuotaFilterComponent.ofEntity(clientQuotaFilterComponent.getEntityType(), clientQuotaFilterComponent.getMatch());
   }
- }
 
   public static ElectionType from(org.apache.kafka.common.ElectionType electionType) {
     return ElectionType.valueOf(electionType.value);

@@ -525,11 +525,11 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   public Future<Void> deleteRecords(Map<TopicPartition, Long> recordsToDelete) {
     ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
     Promise<Void> promise = ctx.promise();
-    deleteRecordsInner(recordsToDelete, promise);
+    deleteRecordsInternal(recordsToDelete, promise);
     return promise.future();
   }
 
-  private void deleteRecordsInner(Map<TopicPartition, Long> recordsToDelete, Promise<Void> promise) {
+  private void deleteRecordsInternal(Map<TopicPartition, Long> recordsToDelete, Promise<Void> promise) {
     try {
       DeleteRecordsResult deleteRecordsResult = this.adminClient.deleteRecords(recordsToDelete.entrySet().stream()
         .collect(Collectors.toMap(
@@ -599,11 +599,11 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   public Future<Void> alterClientQuotas(List<ClientQuotaAlteration> entries) {
     ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
     Promise<Void> promise = ctx.promise();
-    alterClientQuotasInner(entries, promise);
+    alterClientQuotasInternal(entries, promise);
     return promise.future();
   }
 
-  private void alterClientQuotasInner(List<ClientQuotaAlteration> entries, Promise<Void> promise) {
+  private void alterClientQuotasInternal(List<ClientQuotaAlteration> entries, Promise<Void> promise) {
     try {
       AlterClientQuotasResult alterClientQuotasResult = this.adminClient.alterClientQuotas(
         entries.stream().map(Helper::to).collect(Collectors.toList()));
@@ -629,11 +629,11 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   public Future<Map<ClientQuotaEntity, Map<String, Double>>> describeClientQuotas(ClientQuotaFilter filter) {
     ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
     Promise<Map<ClientQuotaEntity, Map<String, Double>>> promise = ctx.promise();
-    describeClientQuotasInner(filter, promise);
+    describeClientQuotasInternal(filter, promise);
     return promise.future();
   }
 
-  private void describeClientQuotasInner(ClientQuotaFilter filter, Promise<Map<ClientQuotaEntity, Map<String, Double>>> promise) {
+  private void describeClientQuotasInternal(ClientQuotaFilter filter, Promise<Map<ClientQuotaEntity, Map<String, Double>>> promise) {
     try {
       org.apache.kafka.common.quota.ClientQuotaFilter clientQuotaFilter = org.apache.kafka.common.quota.ClientQuotaFilter.all();
       List<org.apache.kafka.common.quota.ClientQuotaFilterComponent> components = filter.getComponents().stream().map(Helper::to).collect(Collectors.toList());
