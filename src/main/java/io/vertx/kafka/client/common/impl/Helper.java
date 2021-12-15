@@ -247,6 +247,33 @@ public class Helper {
     return new ReplicaInfo(replicaInfo.size, replicaInfo.offsetLag, replicaInfo.isFuture);
   }
 
+
+  public static org.apache.kafka.common.quota.ClientQuotaEntity to(ClientQuotaEntity clientQuotaEntity) {
+    return new org.apache.kafka.common.quota.ClientQuotaEntity(clientQuotaEntity.getEntries());
+  }
+
+  public static ClientQuotaEntity from(org.apache.kafka.common.quota.ClientQuotaEntity clientQuotaEntity) {
+    return new ClientQuotaEntity(clientQuotaEntity.entries());
+  }
+
+  public static org.apache.kafka.common.quota.ClientQuotaAlteration.Op to(QuotaAlterationOperation quotaAlterationOperation) {
+    return new org.apache.kafka.common.quota.ClientQuotaAlteration
+      .Op(quotaAlterationOperation.getKey(), quotaAlterationOperation.getValue());
+  }
+
+  public static List<org.apache.kafka.common.quota.ClientQuotaAlteration.Op> to(List<QuotaAlterationOperation> quotaAlterationOperations) {
+    return quotaAlterationOperations.stream().map(Helper::to).collect(Collectors.toList());
+  }
+
+  public static org.apache.kafka.common.quota.ClientQuotaAlteration to(ClientQuotaAlteration clientQuotaAlteration) {
+    return new org.apache.kafka.common.quota.ClientQuotaAlteration(
+      to(clientQuotaAlteration.getEntity()), to(clientQuotaAlteration.getOps()));
+  }
+
+  public static org.apache.kafka.common.quota.ClientQuotaFilterComponent to(ClientQuotaFilterComponent clientQuotaFilterComponent) {
+    return org.apache.kafka.common.quota.ClientQuotaFilterComponent.ofEntity(clientQuotaFilterComponent.getEntityType(), clientQuotaFilterComponent.getMatch());
+  }
+
   public static ElectionType from(org.apache.kafka.common.ElectionType electionType) {
     return ElectionType.valueOf(electionType.value);
   }

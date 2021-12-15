@@ -330,6 +330,18 @@ public interface KafkaAdminClient {
   Future<Void> close(long timeout);
 
   @GenIgnore
+  void alterClientQuotas(List<ClientQuotaAlteration> entries, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> alterClientQuotas(List<ClientQuotaAlteration> entries);
+
+  @GenIgnore
+  void describeClientQuotas(ClientQuotaFilter filter, Handler<AsyncResult<Map<ClientQuotaEntity, Map<String, Double>>>> completionHandler);
+
+  @GenIgnore
+  Future<Map<ClientQuotaEntity, Map<String, Double>>> describeClientQuotas(ClientQuotaFilter filter);
+
+  @GenIgnore
   void describeLogDirs(List<Integer> brokerIds, Handler<AsyncResult<Map<Integer, List<LogDirInfo>>>> completionHandler);
 
   @GenIgnore

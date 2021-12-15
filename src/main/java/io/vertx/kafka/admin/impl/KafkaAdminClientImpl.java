@@ -525,11 +525,11 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   public Future<Void> deleteRecords(Map<TopicPartition, Long> recordsToDelete) {
     ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
     Promise<Void> promise = ctx.promise();
-    deleteRecordsInner(recordsToDelete, promise);
+    deleteRecordsInternal(recordsToDelete, promise);
     return promise.future();
   }
 
-  private void deleteRecordsInner(Map<TopicPartition, Long> recordsToDelete, Promise<Void> promise) {
+  private void deleteRecordsInternal(Map<TopicPartition, Long> recordsToDelete, Promise<Void> promise) {
     try {
       DeleteRecordsResult deleteRecordsResult = this.adminClient.deleteRecords(recordsToDelete.entrySet().stream()
         .collect(Collectors.toMap(
@@ -581,6 +581,77 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
             brokerInfos.put(brokerEntry.getKey(), logDirInfos);
           }
           promise.complete(brokerInfos);
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void alterClientQuotas(List<ClientQuotaAlteration> entries, Handler<AsyncResult<Void>> completionHandler) {
+    alterClientQuotas(entries).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Void> alterClientQuotas(List<ClientQuotaAlteration> entries) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+    alterClientQuotasInternal(entries, promise);
+    return promise.future();
+  }
+
+  private void alterClientQuotasInternal(List<ClientQuotaAlteration> entries, Promise<Void> promise) {
+    try {
+      AlterClientQuotasResult alterClientQuotasResult = this.adminClient.alterClientQuotas(
+        entries.stream().map(Helper::to).collect(Collectors.toList()));
+
+      alterClientQuotasResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete();
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void describeClientQuotas(ClientQuotaFilter filter, Handler<AsyncResult<Map<ClientQuotaEntity, Map<String, Double>>>> completionHandler) {
+    describeClientQuotas(filter).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Map<ClientQuotaEntity, Map<String, Double>>> describeClientQuotas(ClientQuotaFilter filter) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Map<ClientQuotaEntity, Map<String, Double>>> promise = ctx.promise();
+    describeClientQuotasInternal(filter, promise);
+    return promise.future();
+  }
+
+  private void describeClientQuotasInternal(ClientQuotaFilter filter, Promise<Map<ClientQuotaEntity, Map<String, Double>>> promise) {
+    try {
+      org.apache.kafka.common.quota.ClientQuotaFilter clientQuotaFilter = org.apache.kafka.common.quota.ClientQuotaFilter.all();
+      List<org.apache.kafka.common.quota.ClientQuotaFilterComponent> components = filter.getComponents().stream().map(Helper::to).collect(Collectors.toList());
+
+      if (!filter.getComponents().isEmpty() && filter.isStrict()) {
+        clientQuotaFilter = org.apache.kafka.common.quota.ClientQuotaFilter.containsOnly(components);
+      } else if (!filter.getComponents().isEmpty() && !filter.isStrict()) {
+        clientQuotaFilter = org.apache.kafka.common.quota.ClientQuotaFilter.contains(components);
+      }
+
+      DescribeClientQuotasResult describeClientQuotasResult = this.adminClient.describeClientQuotas(clientQuotaFilter);
+
+      describeClientQuotasResult.entities().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete(v.entrySet().stream().collect(Collectors.toMap(
+            e -> Helper.from(e.getKey()),
+            Map.Entry::getValue
+          )));
         } else {
           promise.fail(ex);
         }
