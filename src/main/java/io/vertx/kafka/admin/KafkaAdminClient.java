@@ -354,4 +354,9 @@ public interface KafkaAdminClient {
   @GenIgnore
   Future<Void> deleteRecords(Map<TopicPartition, Long> recordsToDelete);
 
+  @GenIgnore
+  void removeMembersFromConsumerGroup(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> removeMembersFromConsumerGroup(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions);
 }

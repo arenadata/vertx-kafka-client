@@ -16,12 +16,14 @@
 
 package io.vertx.kafka.client.tests;
 
+import io.debezium.kafka.KafkaCluster;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.kafka.admin.*;
 import io.vertx.kafka.client.common.*;
 import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
@@ -35,6 +37,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -915,5 +918,36 @@ public class AdminClientTest extends KafkaClusterTestBase {
             async.complete();
           }));
       })));
+  }
+
+  @Test
+  public void testRemoveMembersFromConsumerGroup(TestContext ctx) {
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    Async async = ctx.async();
+
+    Properties props = new Properties();
+    props.setProperty("bootstrap.servers", kafkaCluster.brokerList());
+    props.setProperty("group.id", "remove-group");
+    props.setProperty("enable.auto.commit", Boolean.FALSE.toString());
+    props.setProperty("auto.offset.reset", OffsetResetStrategy.EARLIEST.toString().toLowerCase());
+    props.setProperty("client.id", "remove-group-client");
+    props.setProperty("group.instance.id","consumer-to-delete");
+
+    KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props, new StringDeserializer(), new StringDeserializer());
+    consumer.subscribe(Collections.singletonList("remove-consumer-topic"));
+    consumer.poll(Duration.ofMillis(1000));
+    vertx.setTimer(1000, t -> {
+      adminClient.describeConsumerGroups(Collections.singletonList("remove-group"), ctx.asyncAssertSuccess(groups -> {
+        ctx.assertEquals(groups.get("remove-group").getMembers().size(), 1);
+        adminClient.removeMembersFromConsumerGroup("remove-group",
+          new RemoveMembersFromConsumerGroupOptions(Collections.singleton(new MemberToRemove("consumer-to-delete")))
+          , members -> adminClient.describeConsumerGroups(Collections.singletonList("remove-group"), ctx.asyncAssertSuccess(groups2 -> {
+            ctx.assertEquals(groups2.get("remove-group").getMembers().size(), 0);
+            adminClient.close();
+            async.complete();
+          })));
+      }));
+    });
+
   }
 }
