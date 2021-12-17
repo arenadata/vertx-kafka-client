@@ -8,7 +8,7 @@ public enum ElectionType {
   PREFERRED((byte) 0),
   UNCLEAN((byte) 1);
 
-  public final byte value;
+  private final byte value;
 
   ElectionType(byte value) {
     this.value = value;
@@ -29,6 +29,10 @@ public enum ElectionType {
   }
 
   public JsonObject toJson() {
-    return new JsonObject().put("electionType", ElectionType.valueOf(this.value));
+    return new JsonObject().put("electionType", this);
+  }
+
+  public byte getValue() {
+    return value;
   }
 }

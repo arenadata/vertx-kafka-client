@@ -18,10 +18,7 @@ package io.vertx.kafka.client.common.impl;
 
 import io.vertx.core.Handler;
 import io.vertx.kafka.admin.*;
-import io.vertx.kafka.client.common.ConfigResource;
-import io.vertx.kafka.client.common.ElectionType;
-import io.vertx.kafka.client.common.Node;
-import io.vertx.kafka.client.common.TopicPartition;
+import io.vertx.kafka.client.common.*;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import io.vertx.kafka.client.consumer.OffsetAndTimestamp;
 import io.vertx.kafka.client.producer.RecordMetadata;
@@ -279,7 +276,7 @@ public class Helper {
   }
 
   public static org.apache.kafka.common.ElectionType to(ElectionType electionType) {
-    return org.apache.kafka.common.ElectionType.valueOf(electionType.value);
+    return org.apache.kafka.common.ElectionType.valueOf(electionType.getValue());
   }
 
   public static org.apache.kafka.clients.admin.MemberToRemove to(MemberToRemove member) {
@@ -296,4 +293,35 @@ public class Helper {
       return new org.apache.kafka.clients.admin.RemoveMembersFromConsumerGroupOptions();
     }
   }
+
+  public static org.apache.kafka.common.resource.ResourceType to(ResourceType resourceType) {
+    return org.apache.kafka.common.resource.ResourceType.fromCode(resourceType.getCode());
+  }
+
+  public static ResourceType from(org.apache.kafka.common.resource.ResourceType resourceType) {
+    return ResourceType.fromCode(resourceType.code());
+  }
+
+  public static org.apache.kafka.common.resource.PatternType to(PatternType patternType) {
+    return org.apache.kafka.common.resource.PatternType.fromCode(patternType.getCode());
+  }
+
+  public static PatternType from(org.apache.kafka.common.resource.PatternType patternType) {
+    return PatternType.fromCode(patternType.code());
+  }
+
+  public static org.apache.kafka.common.resource.ResourcePattern to(ResourcePattern resourcePattern) {
+    return new org.apache.kafka.common.resource.ResourcePattern(
+      Helper.to(resourcePattern.getResourceType()),
+      resourcePattern.getName(),
+      Helper.to(resourcePattern.getPatternType()));
+  }
+
+  public static ResourcePattern from(org.apache.kafka.common.resource.ResourcePattern resourcePattern) {
+    return new ResourcePattern(
+      Helper.from(resourcePattern.resourceType()),
+      resourcePattern.name(),
+      Helper.from(resourcePattern.patternType()));
+  }
+
 }
