@@ -1,4 +1,4 @@
-package io.vertx.kafka.client.common;
+package io.vertx.kafka.client.common.resource;
 
 import io.vertx.core.json.JsonObject;
 import org.apache.kafka.common.resource.ResourcePattern;
@@ -94,5 +94,9 @@ public enum PatternType {
 
   public JsonObject toJson() {
     return new JsonObject().put("patternType", this);
+  }
+
+  public boolean isUnknown() {
+    return this == UNKNOWN;
   }
 }

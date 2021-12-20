@@ -1,4 +1,4 @@
-package io.vertx.kafka.client.common;
+package io.vertx.kafka.client.common.resource;
 
 import io.vertx.core.json.JsonObject;
 
@@ -91,5 +91,9 @@ public enum ResourceType {
 
   public JsonObject toJson() {
     return new JsonObject().put("resourceType", this);
+  }
+
+  public boolean isUnknown() {
+    return this == UNKNOWN;
   }
 }

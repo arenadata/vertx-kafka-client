@@ -1,4 +1,4 @@
-package io.vertx.kafka.client.common;
+package io.vertx.kafka.client.common.resource;
 
 import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonObject;
@@ -75,7 +75,8 @@ public class ResourcePattern {
   }
 
   public ResourcePattern setResourceType(ResourceType resourceType) {
-    this.resourceType = resourceType;
+    this.resourceType = Objects.requireNonNull(resourceType);
+    checkResourceType(resourceType);
     return this;
   }
 
@@ -84,7 +85,7 @@ public class ResourcePattern {
   }
 
   public ResourcePattern setName(String name) {
-    this.name = name;
+    this.name = Objects.requireNonNull(name);
     return this;
   }
 
@@ -93,7 +94,8 @@ public class ResourcePattern {
   }
 
   public ResourcePattern setPatternType(PatternType patternType) {
-    this.patternType = patternType;
+    this.patternType = Objects.requireNonNull(patternType);
+    checkPatternType(patternType);
     return this;
   }
 
@@ -114,7 +116,7 @@ public class ResourcePattern {
     ResourcePattern that = (ResourcePattern) o;
 
     if (resourceType != that.resourceType) return false;
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
+    if (!Objects.equals(name, that.name)) return false;
     return patternType == that.patternType;
   }
 

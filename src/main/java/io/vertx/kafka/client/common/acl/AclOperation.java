@@ -1,4 +1,9 @@
-package io.vertx.kafka.client.common;
+package io.vertx.kafka.client.common.acl;
+
+import io.vertx.core.json.JsonObject;
+
+import java.util.HashMap;
+import java.util.Locale;
 
 /**
  * Represents an operation which an ACL grants or denies permission to perform.
@@ -86,9 +91,60 @@ public enum AclOperation {
    */
   IDEMPOTENT_WRITE((byte) 12);
 
+  private final static HashMap<Byte, AclOperation> CODE_TO_VALUE = new HashMap<>();
+
+  static {
+    for(AclOperation aclOperation: AclOperation.values()) {
+      CODE_TO_VALUE.put(aclOperation.code, aclOperation);
+    }
+  }
+
+  /**
+   * Parse the given string as an ACL operation.
+   *
+   * @param str    The string to parse.
+   *
+   * @return       The AclOperation, or UNKNOWN if the string could not be matched.
+   */
+  public static AclOperation fromString(String str) {
+    try {
+      return AclOperation.valueOf(str.toUpperCase(Locale.ROOT));
+    } catch (IllegalArgumentException e) {
+      return UNKNOWN;
+    }
+  }
+
+  /**
+   * Return the AclOperation with the provided code or `AclOperation.UNKNOWN` if one cannot be found.
+   */
+  public static AclOperation fromCode(byte code) {
+    return CODE_TO_VALUE.getOrDefault(code,UNKNOWN);
+  }
+
+  public static AclOperation fromJson(JsonObject json) {
+    if(json.containsKey("aclOperation")) {
+      return AclOperation.fromString(json.getString("aclOperation"));
+    } else {
+      return UNKNOWN;
+    }
+  }
+
+
   private final byte code;
 
   AclOperation(byte code) {
     this.code = code;
+  }
+
+  public byte getCode() {
+    return code;
+  }
+
+  public boolean isUnknown() {
+    return this == UNKNOWN;
+  }
+
+  public JsonObject toJson() {
+    return new JsonObject().put("aclOperation", this);
   }
 }

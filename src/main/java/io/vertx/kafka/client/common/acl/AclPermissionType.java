@@ -1,4 +1,4 @@
-package io.vertx.kafka.client.common;
+package io.vertx.kafka.client.common.acl;
 
 import io.vertx.core.json.JsonObject;
 
@@ -76,6 +76,10 @@ public enum AclPermissionType {
 
   public byte getCode() {
     return code;
+  }
+
+  public boolean isUnknown() {
+    return this == UNKNOWN;
   }
 
   public JsonObject toJson() {

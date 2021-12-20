@@ -19,6 +19,11 @@ package io.vertx.kafka.client.common.impl;
 import io.vertx.core.Handler;
 import io.vertx.kafka.admin.*;
 import io.vertx.kafka.client.common.*;
+import io.vertx.kafka.client.common.acl.*;
+import io.vertx.kafka.client.common.resource.PatternType;
+import io.vertx.kafka.client.common.resource.ResourcePattern;
+import io.vertx.kafka.client.common.resource.ResourcePatternFilter;
+import io.vertx.kafka.client.common.resource.ResourceType;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import io.vertx.kafka.client.consumer.OffsetAndTimestamp;
 import io.vertx.kafka.client.producer.RecordMetadata;
@@ -324,4 +329,90 @@ public class Helper {
       Helper.from(resourcePattern.patternType()));
   }
 
+  public static org.apache.kafka.common.acl.AclPermissionType to(AclPermissionType aclPermissionType) {
+    return org.apache.kafka.common.acl.AclPermissionType.fromCode(aclPermissionType.getCode());
+  }
+
+  public static AclPermissionType from(org.apache.kafka.common.acl.AclPermissionType aclPermissionType) {
+    return AclPermissionType.fromCode(aclPermissionType.code());
+  }
+
+  public static org.apache.kafka.common.acl.AclOperation to(AclOperation aclOperation) {
+    return org.apache.kafka.common.acl.AclOperation.fromCode(aclOperation.getCode());
+  }
+
+  public static AclOperation from(org.apache.kafka.common.acl.AclOperation aclOperation) {
+    return AclOperation.fromCode(aclOperation.code());
+  }
+
+  public static org.apache.kafka.common.acl.AccessControlEntry to(AccessControlEntry accessControlEntry) {
+    return new org.apache.kafka.common.acl.AccessControlEntry(
+      accessControlEntry.getPrincipal(),
+      accessControlEntry.getHost(),
+      Helper.to(accessControlEntry.getOperation()),
+      Helper.to(accessControlEntry.getPermissionType()));
+  }
+
+  public static AccessControlEntry from(org.apache.kafka.common.acl.AccessControlEntry accessControlEntry) {
+    return new AccessControlEntry(
+      accessControlEntry.principal(),
+      accessControlEntry.host(),
+      Helper.from(accessControlEntry.operation()),
+      Helper.from(accessControlEntry.permissionType())
+    );
+  }
+
+  public static org.apache.kafka.common.acl.AclBinding to(AclBinding aclBinding) {
+    return new org.apache.kafka.common.acl.AclBinding(
+      Helper.to(aclBinding.getPattern()),
+      Helper.to(aclBinding.getEntry()));
+  }
+
+  public static AclBinding from(org.apache.kafka.common.acl.AclBinding aclBinding) {
+    return new AclBinding(
+      Helper.from(aclBinding.pattern()),
+      Helper.from(aclBinding.entry()));
+  }
+
+  public static org.apache.kafka.common.resource.ResourcePatternFilter to(ResourcePatternFilter resourcePatternFilter) {
+    return new org.apache.kafka.common.resource.ResourcePatternFilter(
+      Helper.to(resourcePatternFilter.getResourceType()),
+      resourcePatternFilter.getName(),
+      Helper.to(resourcePatternFilter.getPatternType()));
+  }
+
+  public static ResourcePatternFilter from(org.apache.kafka.common.resource.ResourcePatternFilter resourcePatternFilter) {
+    return new ResourcePatternFilter(
+      Helper.from(resourcePatternFilter.resourceType()),
+      resourcePatternFilter.name(),
+      Helper.from(resourcePatternFilter.patternType()));
+  }
+
+  public static org.apache.kafka.common.acl.AccessControlEntryFilter to(AccessControlEntryFilter accessControlEntryFilter) {
+    return new org.apache.kafka.common.acl.AccessControlEntryFilter(
+      accessControlEntryFilter.getPrincipal(),
+      accessControlEntryFilter.getHost(),
+      Helper.to(accessControlEntryFilter.getOperation()),
+      Helper.to(accessControlEntryFilter.getPermissionType()));
+  }
+
+  public static AccessControlEntryFilter from(org.apache.kafka.common.acl.AccessControlEntryFilter accessControlEntryFilter) {
+    return new AccessControlEntryFilter(
+      accessControlEntryFilter.principal(),
+      accessControlEntryFilter.host(),
+      Helper.from(accessControlEntryFilter.operation()),
+      Helper.from(accessControlEntryFilter.permissionType()));
+  }
+
+  public static org.apache.kafka.common.acl.AclBindingFilter to(AclBindingFilter aclBindingFilter) {
+    return new org.apache.kafka.common.acl.AclBindingFilter(
+      Helper.to(aclBindingFilter.getPatternFilter()),
+      Helper.to(aclBindingFilter.getEntryFilter()));
+  }
+
+  public static AclBindingFilter from(org.apache.kafka.common.acl.AclBindingFilter aclBindingFilter) {
+    return new AclBindingFilter(
+      Helper.from(aclBindingFilter.patternFilter()),
+      Helper.from(aclBindingFilter.entryFilter()));
+  }
 }
