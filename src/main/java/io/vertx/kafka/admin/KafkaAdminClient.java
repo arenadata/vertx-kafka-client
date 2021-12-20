@@ -373,4 +373,10 @@ public interface KafkaAdminClient {
 
   @GenIgnore
   Future<Void> createAcls(List<AclBinding> acls);
+
+  @GenIgnore
+  void deleteAcls(List<AclBindingFilter> acls, Handler<AsyncResult<List<AclBinding>>> completionHandler);
+
+  @GenIgnore
+  Future<List<AclBinding>> deleteAcls(List<AclBindingFilter> acls);
 }

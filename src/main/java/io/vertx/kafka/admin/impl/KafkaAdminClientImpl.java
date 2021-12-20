@@ -747,4 +747,32 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
       promise.fail(e);
     }
   }
+
+  @Override
+  public void deleteAcls(List<AclBindingFilter> acls, Handler<AsyncResult<List<AclBinding>>> completionHandler) {
+    deleteAcls(acls).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<List<AclBinding>> deleteAcls(List<AclBindingFilter> acls) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<List<AclBinding>> promise = ctx.promise();
+    deleteAclsInternal(acls, promise);
+    return promise.future();
+  }
+
+  private void deleteAclsInternal(List<AclBindingFilter> acls, Promise<List<AclBinding>> promise) {
+    try {
+      DeleteAclsResult deleteAclsResult = this.adminClient.deleteAcls(acls.stream().map(Helper::to).collect(Collectors.toList()));
+      deleteAclsResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete(v.stream().map(Helper::from).collect(Collectors.toList()));
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
 }

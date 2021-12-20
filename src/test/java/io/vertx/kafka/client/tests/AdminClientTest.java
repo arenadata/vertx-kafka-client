@@ -949,11 +949,4 @@ public class AdminClientTest extends KafkaClusterTestBase {
       }));
     });
   }
-
-  @Test
-  public void testCreateAcls(TestContext ctx) {
-    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
-    Async async = ctx.async();
-
-  }
 }
