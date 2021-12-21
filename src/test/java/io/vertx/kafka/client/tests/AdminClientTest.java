@@ -948,6 +948,5 @@ public class AdminClientTest extends KafkaClusterTestBase {
           })));
       }));
     });
-
   }
 }

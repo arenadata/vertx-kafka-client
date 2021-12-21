@@ -26,6 +26,8 @@ import io.vertx.kafka.admin.impl.KafkaAdminClientImpl;
 import io.vertx.kafka.client.common.ConfigResource;
 import io.vertx.kafka.client.common.ElectionType;
 import io.vertx.kafka.client.common.TopicPartition;
+import io.vertx.kafka.client.common.acl.AclBinding;
+import io.vertx.kafka.client.common.acl.AclBindingFilter;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.admin.AdminClient;
 
@@ -359,4 +361,22 @@ public interface KafkaAdminClient {
 
   @GenIgnore
   Future<Void> removeMembersFromConsumerGroup(String groupId, RemoveMembersFromConsumerGroupOptions removeMembersFromConsumerGroupOptions);
+
+  @GenIgnore
+  void describeAcls(AclBindingFilter filter, Handler<AsyncResult<List<AclBinding>>> completionHandler);
+
+  @GenIgnore
+  Future<List<AclBinding>> describeAcls(AclBindingFilter filter);
+
+  @GenIgnore
+  void createAcls(List<AclBinding> acls, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> createAcls(List<AclBinding> acls);
+
+  @GenIgnore
+  void deleteAcls(List<AclBindingFilter> acls, Handler<AsyncResult<List<AclBinding>>> completionHandler);
+
+  @GenIgnore
+  Future<List<AclBinding>> deleteAcls(List<AclBindingFilter> acls);
 }

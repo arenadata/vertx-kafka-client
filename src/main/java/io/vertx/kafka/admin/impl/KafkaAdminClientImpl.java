@@ -31,6 +31,8 @@ import io.vertx.kafka.admin.RemoveMembersFromConsumerGroupOptions;
 import io.vertx.kafka.admin.TopicDescription;
 import io.vertx.kafka.admin.*;
 import io.vertx.kafka.client.common.*;
+import io.vertx.kafka.client.common.acl.AclBinding;
+import io.vertx.kafka.client.common.acl.AclBindingFilter;
 import io.vertx.kafka.client.common.impl.Helper;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.admin.*;
@@ -681,6 +683,90 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
       removeMembersFromConsumerGroupResult.all().whenComplete((v, ex) -> {
         if (ex == null) {
           promise.complete();
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void describeAcls(AclBindingFilter filter, Handler<AsyncResult<List<AclBinding>>> completionHandler) {
+    describeAcls(filter).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<List<AclBinding>> describeAcls(AclBindingFilter filter) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<List<AclBinding>> promise = ctx.promise();
+    describeAclsInternal(filter, promise);
+    return promise.future();
+  }
+
+  private void describeAclsInternal(AclBindingFilter filter, Promise<List<AclBinding>> promise) {
+    try {
+      DescribeAclsResult describeAclsResult = this.adminClient.describeAcls(Helper.to(filter));
+      describeAclsResult.values().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete(v.stream().map(Helper::from).collect(Collectors.toList()));
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void createAcls(List<AclBinding> acls, Handler<AsyncResult<Void>> completionHandler) {
+    createAcls(acls).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Void> createAcls(List<AclBinding> acls) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+    createAclsInternal(acls, promise);
+    return promise.future();
+  }
+
+  private void createAclsInternal(List<AclBinding> acls, Promise<Void> promise) {
+    try {
+      CreateAclsResult createAclsResult = this.adminClient.createAcls(acls.stream().map(Helper::to).collect(Collectors.toList()));
+      createAclsResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete();
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void deleteAcls(List<AclBindingFilter> acls, Handler<AsyncResult<List<AclBinding>>> completionHandler) {
+    deleteAcls(acls).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<List<AclBinding>> deleteAcls(List<AclBindingFilter> acls) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<List<AclBinding>> promise = ctx.promise();
+    deleteAclsInternal(acls, promise);
+    return promise.future();
+  }
+
+  private void deleteAclsInternal(List<AclBindingFilter> acls, Promise<List<AclBinding>> promise) {
+    try {
+      DeleteAclsResult deleteAclsResult = this.adminClient.deleteAcls(acls.stream().map(Helper::to).collect(Collectors.toList()));
+      deleteAclsResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete(v.stream().map(Helper::from).collect(Collectors.toList()));
         } else {
           promise.fail(ex);
         }
