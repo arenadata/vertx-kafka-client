@@ -431,6 +431,7 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
           promise.complete(clusterDescription);
         } catch (InterruptedException|ExecutionException e) {
           promise.fail(e);
+          Thread.currentThread().interrupt();
         }
       } else {
         promise.fail(ex);
@@ -567,16 +568,16 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   private void describeLogDirsInternal(List<Integer> brokerIds, Promise<Map<Integer, List<LogDirInfo>>> promise) {
     try {
       DescribeLogDirsResult describeLogDirsResult = this.adminClient.describeLogDirs(brokerIds);
-      describeLogDirsResult.all().whenComplete((t, ex) -> {
+      describeLogDirsResult.allDescriptions().whenComplete((t, ex) -> {
         if (ex == null) {
           Map<Integer, List<LogDirInfo>> brokerInfos = new HashMap<>();
-          for (Map.Entry<Integer, Map<String, DescribeLogDirsResponse.LogDirInfo>> brokerEntry : t.entrySet()) {
+          for (Map.Entry<Integer, Map<String, LogDirDescription>> brokerEntry : t.entrySet()) {
             List<LogDirInfo> logDirInfos = new ArrayList<>();
-            for (Map.Entry<String, DescribeLogDirsResponse.LogDirInfo> logDirEntry : brokerEntry.getValue().entrySet()) {
+            for (Map.Entry<String, LogDirDescription> logDirEntry : brokerEntry.getValue().entrySet()) {
               LogDirInfo logDirInfo = new LogDirInfo();
               logDirInfo
                 .setPath(logDirEntry.getKey())
-                .setReplicaInfos(logDirEntry.getValue().replicaInfos.entrySet().stream()
+                .setReplicaInfos(logDirEntry.getValue().replicaInfos().entrySet().stream()
                   .map(v -> new TopicPartitionReplicaInfo(v.getKey(), Helper.from(v.getValue())))
                   .collect(Collectors.toList()));
               logDirInfos.add(logDirInfo);

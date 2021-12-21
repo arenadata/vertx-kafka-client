@@ -245,8 +245,8 @@ public class Helper {
     return new ListOffsetsResultInfo(lori.offset(), lori.timestamp(), lori.leaderEpoch().orElse(null));
   }
 
-  public static ReplicaInfo from(DescribeLogDirsResponse.ReplicaInfo replicaInfo) {
-    return new ReplicaInfo(replicaInfo.size, replicaInfo.offsetLag, replicaInfo.isFuture);
+  public static ReplicaInfo from(org.apache.kafka.clients.admin.ReplicaInfo replicaInfo) {
+    return new ReplicaInfo(replicaInfo.size(), replicaInfo.offsetLag(), replicaInfo.isFuture());
   }
 
 

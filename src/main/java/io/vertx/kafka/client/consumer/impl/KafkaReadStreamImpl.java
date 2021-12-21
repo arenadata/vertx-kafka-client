@@ -38,13 +38,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 
 import java.time.Duration;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -328,7 +322,7 @@ public class KafkaReadStreamImpl<K, V> implements KafkaReadStream<K, V> {
   public void committed(TopicPartition topicPartition, Handler<AsyncResult<OffsetAndMetadata>> handler) {
 
     this.submitTask((consumer, future) -> {
-      OffsetAndMetadata result = consumer.committed(topicPartition);
+      OffsetAndMetadata result = consumer.committed(Collections.singleton(topicPartition)).get(topicPartition);
       if (future != null) {
         future.complete(result);
       }
@@ -339,6 +333,24 @@ public class KafkaReadStreamImpl<K, V> implements KafkaReadStream<K, V> {
   public Future<OffsetAndMetadata> committed(TopicPartition topicPartition) {
     Promise<OffsetAndMetadata> promise = Promise.promise();
     committed(topicPartition, promise);
+    return promise.future();
+  }
+
+  @Override
+  public void committed(Set<TopicPartition> partitions, Handler<AsyncResult<Map<TopicPartition, OffsetAndMetadata>>> handler) {
+
+    this.submitTask((consumer, future) -> {
+      Map<TopicPartition, OffsetAndMetadata> result = consumer.committed(partitions);
+      if (future != null) {
+        future.complete(result);
+      }
+    }, handler);
+  }
+
+  @Override
+  public Future<Map<TopicPartition, OffsetAndMetadata>> committed(Set<TopicPartition> partitions) {
+    Promise<Map<TopicPartition, OffsetAndMetadata>> promise = Promise.promise();
+    committed(partitions, promise);
     return promise.future();
   }
 
