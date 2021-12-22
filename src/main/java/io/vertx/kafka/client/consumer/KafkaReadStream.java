@@ -247,6 +247,10 @@ public interface KafkaReadStream<K, V> extends ReadStream<ConsumerRecord<K, V>> 
    */
   Future<OffsetAndMetadata> committed(TopicPartition topicPartition);
 
+  void committed(Set<TopicPartition> partitions, Handler<AsyncResult<Map<TopicPartition, OffsetAndMetadata>>> handler);
+
+  Future<Map<TopicPartition, OffsetAndMetadata>> committed(Set<TopicPartition> partitions);
+
   /**
    * Suspend fetching from the requested partitions.
    *
