@@ -21,6 +21,8 @@ import io.vertx.core.impl.ContextInternal;
 import io.vertx.kafka.admin.Config;
 import io.vertx.kafka.admin.ConsumerGroupDescription;
 import io.vertx.kafka.admin.ConsumerGroupListing;
+import io.vertx.kafka.admin.FeatureMetadata;
+import io.vertx.kafka.admin.FeatureUpdate;
 import io.vertx.kafka.admin.KafkaAdminClient;
 import io.vertx.kafka.admin.ListConsumerGroupOffsetsOptions;
 import io.vertx.kafka.admin.MemberDescription;
@@ -37,7 +39,6 @@ import io.vertx.kafka.client.common.impl.Helper;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.KafkaFuture;
-import org.apache.kafka.common.requests.DescribeLogDirsResponse;
 
 import java.time.Duration;
 import java.util.*;
@@ -768,6 +769,67 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
       deleteAclsResult.all().whenComplete((v, ex) -> {
         if (ex == null) {
           promise.complete(v.stream().map(Helper::from).collect(Collectors.toList()));
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void describeFeatures(Handler<AsyncResult<FeatureMetadata>> completionHandler) {
+    describeFeatures().onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<FeatureMetadata> describeFeatures() {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<FeatureMetadata> promise = ctx.promise();
+    describeFeaturesInternal(promise);
+    return promise.future();
+  }
+
+  private void describeFeaturesInternal(Promise<FeatureMetadata> promise) {
+    try {
+      DescribeFeaturesResult describeFeaturesResult = this.adminClient.describeFeatures();
+      describeFeaturesResult.featureMetadata().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete(Helper.from(v));
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void updateFeatures(Map<String, FeatureUpdate> featureUpdates, Handler<AsyncResult<Void>> completionHandler) {
+    updateFeatures(featureUpdates).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Void> updateFeatures(Map<String, FeatureUpdate> featureUpdates) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+    updateFeaturesInternal(featureUpdates, promise);
+    return promise.future();
+  }
+
+  private void updateFeaturesInternal(Map<String, FeatureUpdate> featureUpdates, Promise<Void> promise) {
+    try {
+      UpdateFeaturesResult updateFeaturesResult = this.adminClient.updateFeatures(
+        featureUpdates.entrySet().stream().collect(Collectors.toMap(
+          Map.Entry::getKey,
+          e -> Helper.to(e.getValue()))),
+        new UpdateFeaturesOptions());
+
+      updateFeaturesResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete();
         } else {
           promise.fail(ex);
         }

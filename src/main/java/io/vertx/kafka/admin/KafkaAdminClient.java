@@ -379,4 +379,16 @@ public interface KafkaAdminClient {
 
   @GenIgnore
   Future<List<AclBinding>> deleteAcls(List<AclBindingFilter> acls);
+
+  @GenIgnore
+  void describeFeatures(Handler<AsyncResult<FeatureMetadata>> completionHandler);
+
+  @GenIgnore
+  Future<FeatureMetadata> describeFeatures();
+
+  @GenIgnore
+  void updateFeatures(Map<String, FeatureUpdate> featureUpdates, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> updateFeatures(Map<String, FeatureUpdate> featureUpdates);
 }

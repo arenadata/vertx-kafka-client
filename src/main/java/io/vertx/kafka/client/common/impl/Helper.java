@@ -18,7 +18,10 @@ package io.vertx.kafka.client.common.impl;
 
 import io.vertx.core.Handler;
 import io.vertx.kafka.admin.*;
-import io.vertx.kafka.client.common.*;
+import io.vertx.kafka.client.common.ConfigResource;
+import io.vertx.kafka.client.common.ElectionType;
+import io.vertx.kafka.client.common.Node;
+import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.common.acl.*;
 import io.vertx.kafka.client.common.resource.PatternType;
 import io.vertx.kafka.client.common.resource.ResourcePattern;
@@ -28,7 +31,6 @@ import io.vertx.kafka.client.consumer.OffsetAndMetadata;
 import io.vertx.kafka.client.consumer.OffsetAndTimestamp;
 import io.vertx.kafka.client.producer.RecordMetadata;
 import org.apache.kafka.clients.admin.AlterConfigOp;
-import org.apache.kafka.common.requests.DescribeLogDirsResponse;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -414,5 +416,22 @@ public class Helper {
     return new AclBindingFilter(
       Helper.from(aclBindingFilter.patternFilter()),
       Helper.from(aclBindingFilter.entryFilter()));
+  }
+
+  public static FeatureMetadata from(org.apache.kafka.clients.admin.FeatureMetadata featureMetadata) {
+    return new FeatureMetadata(
+      featureMetadata.finalizedFeatures().entrySet().stream().collect(Collectors.toMap(
+        Map.Entry::getKey,
+        e -> new FinalizedVersionRange(e.getValue().minVersionLevel(), e.getValue().maxVersionLevel()))),
+      featureMetadata.finalizedFeaturesEpoch().orElse(-1L),
+      featureMetadata.supportedFeatures().entrySet().stream().collect(Collectors.toMap(
+        Map.Entry::getKey,
+        e -> new SupportedVersionRange(e.getValue().minVersion(), e.getValue().maxVersion())
+      ))
+    );
+  }
+
+  public static org.apache.kafka.clients.admin.FeatureUpdate to(FeatureUpdate featureUpdate) {
+    return new org.apache.kafka.clients.admin.FeatureUpdate(featureUpdate.getMaxVersionLevel(), featureUpdate.isAllowDowngrade());
   }
 }
