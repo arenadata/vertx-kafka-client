@@ -26,9 +26,11 @@ import io.vertx.kafka.admin.FeatureUpdate;
 import io.vertx.kafka.admin.KafkaAdminClient;
 import io.vertx.kafka.admin.ListConsumerGroupOffsetsOptions;
 import io.vertx.kafka.admin.MemberDescription;
+import io.vertx.kafka.admin.NewPartitionReassignment;
 import io.vertx.kafka.admin.NewPartitions;
 import io.vertx.kafka.admin.NewTopic;
 import io.vertx.kafka.admin.OffsetSpec;
+import io.vertx.kafka.admin.PartitionReassignment;
 import io.vertx.kafka.admin.RemoveMembersFromConsumerGroupOptions;
 import io.vertx.kafka.admin.TopicDescription;
 import io.vertx.kafka.admin.*;
@@ -828,6 +830,91 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
         new UpdateFeaturesOptions());
 
       updateFeaturesResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete();
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void listPartitionReassignments(Handler<AsyncResult<Map<TopicPartition, PartitionReassignment>>> completionHandler) {
+    listPartitionReassignments().onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Map<TopicPartition, PartitionReassignment>> listPartitionReassignments() {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Map<TopicPartition, PartitionReassignment>> promise = ctx.promise();
+    listPartitionReassignmentsInternal(null, promise);
+    return promise.future();
+  }
+
+  @Override
+  public void listPartitionReassignments(Set<TopicPartition> partitions, Handler<AsyncResult<Map<TopicPartition, PartitionReassignment>>> completionHandler) {
+    listPartitionReassignments(partitions).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Map<TopicPartition, PartitionReassignment>> listPartitionReassignments(Set<TopicPartition> partitions) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Map<TopicPartition, PartitionReassignment>> promise = ctx.promise();
+    listPartitionReassignmentsInternal(partitions, promise);
+    return promise.future();
+  }
+
+  private void listPartitionReassignmentsInternal(Set<TopicPartition> partitions, Promise<Map<TopicPartition, PartitionReassignment>> promise) {
+    try {
+      ListPartitionReassignmentsResult listPartitionReassignmentsResult;
+      if(Objects.isNull(partitions)) {
+        listPartitionReassignmentsResult = this.adminClient.listPartitionReassignments();
+      } else {
+        listPartitionReassignmentsResult = this.adminClient.listPartitionReassignments(
+          partitions.stream()
+            .map(Helper::to).collect(Collectors.toSet()));
+      }
+      listPartitionReassignmentsResult.reassignments().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete(v.entrySet().stream().collect(Collectors.toMap(
+            e -> Helper.from(e.getKey()),
+            e -> Helper.from(e.getValue())
+          )));
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void alterPartitionReassignments(Map<TopicPartition, NewPartitionReassignment> reassignments, Handler<AsyncResult<Void>> completionHandler) {
+    alterPartitionReassignments(reassignments).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Void> alterPartitionReassignments(Map<TopicPartition, NewPartitionReassignment> reassignments) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+    alterPartitionReassignmentsInternal(reassignments, promise);
+    return promise.future();
+  }
+
+  private void alterPartitionReassignmentsInternal(Map<TopicPartition, NewPartitionReassignment> reassignments, Promise<Void> promise) {
+    try {
+      AlterPartitionReassignmentsResult alterPartitionReassignmentsResult = this.adminClient.alterPartitionReassignments(
+        reassignments.entrySet().stream()
+          .collect(Collectors.toMap(
+            e -> Helper.to(e.getKey()),
+            e -> Optional.ofNullable(e.getValue()).map(Helper::to)
+          ))
+      );
+      alterPartitionReassignmentsResult.all().whenComplete((v, ex) -> {
         if (ex == null) {
           promise.complete();
         } else {

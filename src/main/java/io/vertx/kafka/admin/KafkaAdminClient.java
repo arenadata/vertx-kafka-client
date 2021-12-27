@@ -391,4 +391,22 @@ public interface KafkaAdminClient {
 
   @GenIgnore
   Future<Void> updateFeatures(Map<String, FeatureUpdate> featureUpdates);
+
+  @GenIgnore
+  void listPartitionReassignments(Handler<AsyncResult<Map<TopicPartition, PartitionReassignment>>> completionHandler);
+
+  @GenIgnore
+  Future<Map<TopicPartition, PartitionReassignment>> listPartitionReassignments();
+
+  @GenIgnore
+  void listPartitionReassignments(Set<TopicPartition> partitions, Handler<AsyncResult<Map<TopicPartition, PartitionReassignment>>> completionHandler);
+
+  @GenIgnore
+  Future<Map<TopicPartition, PartitionReassignment>> listPartitionReassignments(Set<TopicPartition> partitions);
+
+  @GenIgnore
+  void alterPartitionReassignments(Map<TopicPartition, NewPartitionReassignment> reassignments, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> alterPartitionReassignments(Map<TopicPartition, NewPartitionReassignment> reassignments);
 }

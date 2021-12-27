@@ -434,4 +434,27 @@ public class Helper {
   public static org.apache.kafka.clients.admin.FeatureUpdate to(FeatureUpdate featureUpdate) {
     return new org.apache.kafka.clients.admin.FeatureUpdate(featureUpdate.getMaxVersionLevel(), featureUpdate.isAllowDowngrade());
   }
+
+  public static PartitionReassignment from(org.apache.kafka.clients.admin.PartitionReassignment partitionReassignment) {
+    return new PartitionReassignment(
+      partitionReassignment.replicas(),
+      partitionReassignment.addingReplicas(),
+      partitionReassignment.removingReplicas()
+    );
+  }
+
+  public static org.apache.kafka.clients.admin.PartitionReassignment to(PartitionReassignment partitionReassignment) {
+    return new org.apache.kafka.clients.admin.PartitionReassignment(
+      partitionReassignment.getReplicas(),
+      partitionReassignment.getAddingReplicas(),
+      partitionReassignment.getRemovingReplicas());
+  }
+
+  public static NewPartitionReassignment from(org.apache.kafka.clients.admin.NewPartitionReassignment newPartitionReassignment) {
+    return new NewPartitionReassignment(newPartitionReassignment.targetReplicas());
+  }
+
+  public static org.apache.kafka.clients.admin.NewPartitionReassignment to(NewPartitionReassignment newPartitionReassignment) {
+    return new org.apache.kafka.clients.admin.NewPartitionReassignment(newPartitionReassignment.getTargetReplicas());
+  }
 }

@@ -16,7 +16,6 @@
 
 package io.vertx.kafka.client.tests;
 
-import io.debezium.kafka.KafkaCluster;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -971,5 +970,54 @@ public class AdminClientTest extends KafkaClusterTestBase {
       adminClient.close();
       async.complete();
     }));
+  }
+
+  @Test
+  public void testListAllPartitionReassignments(TestContext ctx) {
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    Async async = ctx.async();
+    adminClient.listPartitionReassignments(ctx.asyncAssertSuccess(r -> {
+      ctx.assertEquals(r.size(), 0);
+      adminClient.close();
+      async.complete();
+    }));
+  }
+
+  @Test
+  public void testListOnePartitionReassignments(TestContext ctx) {
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    Async async = ctx.async();
+    adminClient.listPartitionReassignments(Collections.singleton(new TopicPartition("test", 1)), ctx.asyncAssertSuccess(r -> {
+      ctx.assertEquals(r.size(), 0);
+      adminClient.close();
+      async.complete();
+    }));
+  }
+
+  @Test
+  public void testAlterPartitionReassignments(TestContext ctx) {
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    Async async = ctx.async();
+    adminClient.createTopics(Collections.singletonList(
+        new NewTopic("alter_partition_reassignment_topic", 2, (short) 1)),
+      ctx.asyncAssertSuccess(t -> adminClient.describeTopics(
+        Collections.singletonList("alter_partition_reassignment_topic"), ctx.asyncAssertSuccess(d -> {
+          int currentReplica = d.get("alter_partition_reassignment_topic").getPartitions().get(0).getReplicas().get(0).getId();
+          int newReplica = currentReplica == 1 ? 2 : 1;
+          adminClient.alterPartitionReassignments(Collections.singletonMap(new TopicPartition("alter_partition_reassignment_topic", 0),
+            new NewPartitionReassignment(Stream.of(1, 2).collect(Collectors.toList()))), ctx.asyncAssertSuccess(r -> {
+            adminClient.listPartitionReassignments(ctx.asyncAssertSuccess(d2 -> {
+              ctx.assertEquals(d2.size(), 1);
+              ctx.assertEquals(d2, Collections.singletonMap(
+                new TopicPartition("alter_partition_reassignment_topic", 0),
+                new PartitionReassignment(Stream.of(1, 2).collect(Collectors.toList()), Collections.singletonList(newReplica), new ArrayList<>())
+              ));
+              adminClient.deleteTopics(Collections.singletonList("alter_partition_reassignment_topic"), ctx.asyncAssertSuccess(e -> {
+                adminClient.close();
+                async.complete();
+              }));
+            }));
+          }));
+        }))));
   }
 }
