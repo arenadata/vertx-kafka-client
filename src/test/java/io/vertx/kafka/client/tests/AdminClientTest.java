@@ -949,4 +949,27 @@ public class AdminClientTest extends KafkaClusterTestBase {
       }));
     });
   }
+
+  @Test
+  public void testDescribeFeatures(TestContext ctx) {
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    Async async = ctx.async();
+    adminClient.describeFeatures(ctx.asyncAssertSuccess(features -> {
+      ctx.assertEquals(features, new FeatureMetadata(new HashMap<>(), 0, new HashMap<>()));
+      adminClient.close();
+      async.complete();
+    }));
+  }
+
+  @Test
+  public void testUpdateFeatures(TestContext ctx) {
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    Async async = ctx.async();
+    HashMap<String, FeatureUpdate> featureUpdateHashMap = new HashMap<>();
+    featureUpdateHashMap.put("test", new FeatureUpdate((short) 1, false));
+    adminClient.updateFeatures(featureUpdateHashMap, ctx.asyncAssertFailure(v -> {
+      adminClient.close();
+      async.complete();
+    }));
+  }
 }
