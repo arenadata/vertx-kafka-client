@@ -423,5 +423,9 @@ public interface KafkaAdminClient {
   @GenIgnore
   Future<Void> alterReplicaLogDirs(Map<TopicPartitionReplica, String> replicaAssignment);
 
+  @GenIgnore
+  void unregisterBroker(int brokerId, Handler<AsyncResult<Void>> completionHandler);
 
+  @GenIgnore
+  Future<Void> unregisterBroker(int brokerId);
 }

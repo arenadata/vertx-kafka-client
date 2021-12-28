@@ -1078,4 +1078,17 @@ public class AdminClientTest extends KafkaClusterTestBase {
           }));
       }))));
   }
+
+  @Test
+  public void testUnregisterBroker(TestContext ctx) {
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    Async async = ctx.async();
+    adminClient.unregisterBroker(1, ctx.asyncAssertFailure(v -> {
+      /*
+       * It is supported only on Kafka clusters which use Raft to store metadata, rather than ZooKeeper
+       * */
+      adminClient.close();
+      async.complete();
+    }));
+  }
 }
