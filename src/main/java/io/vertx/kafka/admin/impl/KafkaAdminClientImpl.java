@@ -943,7 +943,8 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
     try {
       DescribeReplicaLogDirsResult describeReplicaLogDirsResult = this.adminClient.describeReplicaLogDirs(
         replicas.stream()
-          .map(Helper::to).collect(Collectors.toList()));
+          .map(Helper::to)
+          .collect(Collectors.toList()));
       describeReplicaLogDirsResult.all().whenComplete((v, ex) -> {
         if (ex == null) {
           promise.complete(v.entrySet().stream()
