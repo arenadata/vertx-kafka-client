@@ -18,10 +18,7 @@ package io.vertx.kafka.client.common.impl;
 
 import io.vertx.core.Handler;
 import io.vertx.kafka.admin.*;
-import io.vertx.kafka.client.common.ConfigResource;
-import io.vertx.kafka.client.common.ElectionType;
-import io.vertx.kafka.client.common.Node;
-import io.vertx.kafka.client.common.TopicPartition;
+import io.vertx.kafka.client.common.*;
 import io.vertx.kafka.client.common.acl.*;
 import io.vertx.kafka.client.common.resource.PatternType;
 import io.vertx.kafka.client.common.resource.ResourcePattern;
@@ -456,5 +453,22 @@ public class Helper {
 
   public static org.apache.kafka.clients.admin.NewPartitionReassignment to(NewPartitionReassignment newPartitionReassignment) {
     return new org.apache.kafka.clients.admin.NewPartitionReassignment(newPartitionReassignment.getTargetReplicas());
+  }
+
+  public static TopicPartitionReplica from(org.apache.kafka.common.TopicPartitionReplica topicPartitionReplica) {
+    return new TopicPartitionReplica(topicPartitionReplica.topic(), topicPartitionReplica.partition(), topicPartitionReplica.brokerId());
+  }
+
+  public static org.apache.kafka.common.TopicPartitionReplica to(TopicPartitionReplica topicPartitionReplica) {
+    return new org.apache.kafka.common.TopicPartitionReplica(topicPartitionReplica.getTopic(),topicPartitionReplica.getPartition(), topicPartitionReplica.getBrokerId());
+  }
+
+  public static ReplicaLogDirInfo from(org.apache.kafka.clients.admin.DescribeReplicaLogDirsResult.ReplicaLogDirInfo replicaLogDirInfo) {
+    return new ReplicaLogDirInfo(
+      replicaLogDirInfo.getCurrentReplicaLogDir(),
+      replicaLogDirInfo.getCurrentReplicaOffsetLag(),
+      replicaLogDirInfo.getFutureReplicaLogDir(),
+      replicaLogDirInfo.getFutureReplicaOffsetLag()
+    );
   }
 }

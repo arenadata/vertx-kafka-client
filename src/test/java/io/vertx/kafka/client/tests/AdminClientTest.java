@@ -1020,4 +1020,62 @@ public class AdminClientTest extends KafkaClusterTestBase {
           }));
         }))));
   }
+
+  @Test
+  public void testDescribeReplicaLogDirs(TestContext ctx) {
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    Async async = ctx.async();
+    adminClient.createTopics(Collections.singletonList(new NewTopic("describe_replica_logdirs_topic", 1, (short) 1)),
+      ctx.asyncAssertSuccess(t -> adminClient.describeTopics(Collections.singletonList("describe_replica_logdirs_topic"), ctx.asyncAssertSuccess(d -> {
+        int currentReplica = d.get("describe_replica_logdirs_topic").getPartitions().get(0).getReplicas().get(0).getId();
+        int otherReplica = currentReplica == 1 ? 2 : 1;
+        adminClient.describeReplicaLogDirs(Stream.of(
+            new TopicPartitionReplica("describe_replica_logdirs_topic", 0, 1),
+            new TopicPartitionReplica("describe_replica_logdirs_topic", 0, 2)
+          ).collect(Collectors.toList()),
+          ctx.asyncAssertSuccess(dr -> {
+            ctx.assertNotNull(dr.get(new TopicPartitionReplica("describe_replica_logdirs_topic",0,currentReplica)).getCurrentReplicaLogDir());
+            ctx.assertNull(dr.get(new TopicPartitionReplica("describe_replica_logdirs_topic",0,otherReplica)).getCurrentReplicaLogDir());
+            adminClient.deleteTopics(Collections.singletonList("describe_replica_logdirs_topic"), ctx.asyncAssertSuccess(e -> {
+              adminClient.close();
+              async.complete();
+            }));
+          }));
+      }))));
+  }
+
+  @Test
+  public void testAlterReplicaLogDirs(TestContext ctx) {
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+    Async async = ctx.async();
+    adminClient.createTopics(Collections.singletonList(new NewTopic("alter_replica_logdirs_topic", 1, (short) 1)),
+      ctx.asyncAssertSuccess(t -> adminClient.describeTopics(Collections.singletonList("alter_replica_logdirs_topic"), ctx.asyncAssertSuccess(d -> {
+        int currentReplica = d.get("alter_replica_logdirs_topic").getPartitions().get(0).getReplicas().get(0).getId();
+        int otherReplica = currentReplica == 1 ? 2 : 1;
+        adminClient.describeReplicaLogDirs(Stream.of(
+            new TopicPartitionReplica("alter_replica_logdirs_topic", 0, 1),
+            new TopicPartitionReplica("alter_replica_logdirs_topic", 0, 2)
+          ).collect(Collectors.toList()),
+          ctx.asyncAssertSuccess(dr -> {
+            String currentReplicaLogDir = dr.get(new TopicPartitionReplica("alter_replica_logdirs_topic", 0, currentReplica)).getCurrentReplicaLogDir();
+            String newReplicaLogDir = currentReplicaLogDir.substring(0, currentReplicaLogDir.length() - 1) + currentReplica;
+            ctx.assertNotNull(currentReplicaLogDir);
+            ctx.assertNull(dr.get(new TopicPartitionReplica("alter_replica_logdirs_topic", 0, otherReplica)).getCurrentReplicaLogDir());
+            adminClient.alterReplicaLogDirs(Collections.singletonMap(new TopicPartitionReplica("alter_replica_logdirs_topic", 0, currentReplica), newReplicaLogDir),
+              ctx.asyncAssertSuccess(al -> adminClient.describeReplicaLogDirs(Stream.of(
+                  new TopicPartitionReplica("alter_replica_logdirs_topic", 0, 1),
+                  new TopicPartitionReplica("alter_replica_logdirs_topic", 0, 2)
+                ).collect(Collectors.toList()), ctx.asyncAssertSuccess(dr2 -> {
+                  ctx.assertNotNull(dr2.get(new TopicPartitionReplica("alter_replica_logdirs_topic", 0, currentReplica)).getCurrentReplicaLogDir());
+                  ctx.assertNull(dr2.get(new TopicPartitionReplica("alter_replica_logdirs_topic", 0, otherReplica)).getCurrentReplicaLogDir());
+                  adminClient.deleteTopics(Collections.singletonList("alter_replica_logdirs_topic"), ctx.asyncAssertSuccess(e -> {
+                    adminClient.close();
+                    async.complete();
+                  }));
+                }))
+              ));
+
+          }));
+      }))));
+  }
 }

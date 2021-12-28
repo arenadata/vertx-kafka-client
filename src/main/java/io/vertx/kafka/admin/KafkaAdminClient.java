@@ -26,6 +26,7 @@ import io.vertx.kafka.admin.impl.KafkaAdminClientImpl;
 import io.vertx.kafka.client.common.ConfigResource;
 import io.vertx.kafka.client.common.ElectionType;
 import io.vertx.kafka.client.common.TopicPartition;
+import io.vertx.kafka.client.common.TopicPartitionReplica;
 import io.vertx.kafka.client.common.acl.AclBinding;
 import io.vertx.kafka.client.common.acl.AclBindingFilter;
 import io.vertx.kafka.client.consumer.OffsetAndMetadata;
@@ -409,4 +410,18 @@ public interface KafkaAdminClient {
 
   @GenIgnore
   Future<Void> alterPartitionReassignments(Map<TopicPartition, NewPartitionReassignment> reassignments);
+
+  @GenIgnore
+  void describeReplicaLogDirs(List<TopicPartitionReplica> replicas, Handler<AsyncResult<Map<TopicPartitionReplica, ReplicaLogDirInfo>>> completionHandler);
+
+  @GenIgnore
+  Future<Map<TopicPartitionReplica, ReplicaLogDirInfo>> describeReplicaLogDirs(List<TopicPartitionReplica> replicas);
+
+  @GenIgnore
+  void alterReplicaLogDirs(Map<TopicPartitionReplica, String> replicaAssignment, Handler<AsyncResult<Void>> completionHandler);
+
+  @GenIgnore
+  Future<Void> alterReplicaLogDirs(Map<TopicPartitionReplica, String> replicaAssignment);
+
+
 }
