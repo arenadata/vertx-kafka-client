@@ -925,4 +925,71 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
       promise.fail(e);
     }
   }
+
+  @Override
+  public void describeReplicaLogDirs(List<TopicPartitionReplica> replicas, Handler<AsyncResult<Map<TopicPartitionReplica, ReplicaLogDirInfo>>> completionHandler) {
+    describeReplicaLogDirs(replicas).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Map<TopicPartitionReplica, ReplicaLogDirInfo>> describeReplicaLogDirs(List<TopicPartitionReplica> replicas) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Map<TopicPartitionReplica, ReplicaLogDirInfo>> promise = ctx.promise();
+    describeReplicaLogDirsInternal(replicas, promise);
+    return promise.future();
+  }
+
+  private void describeReplicaLogDirsInternal(List<TopicPartitionReplica> replicas, Promise<Map<TopicPartitionReplica, ReplicaLogDirInfo>> promise) {
+    try {
+      DescribeReplicaLogDirsResult describeReplicaLogDirsResult = this.adminClient.describeReplicaLogDirs(
+        replicas.stream()
+          .map(Helper::to).collect(Collectors.toList()));
+      describeReplicaLogDirsResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete(v.entrySet().stream()
+            .collect(Collectors.toMap(
+              e -> Helper.from(e.getKey()),
+              e -> Helper.from(e.getValue())
+            )));
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
+
+  @Override
+  public void alterReplicaLogDirs(Map<TopicPartitionReplica, String> replicaAssignment, Handler<AsyncResult<Void>> completionHandler) {
+    alterReplicaLogDirs(replicaAssignment).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Void> alterReplicaLogDirs(Map<TopicPartitionReplica, String> replicaAssignment) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+    alterReplicaLogDirsInternal(replicaAssignment, promise);
+    return promise.future();
+  }
+
+  private void alterReplicaLogDirsInternal(Map<TopicPartitionReplica, String> replicaAssignment, Promise<Void> promise) {
+    try {
+      AlterReplicaLogDirsResult alterReplicaLogDirsResult = this.adminClient.alterReplicaLogDirs(
+        replicaAssignment.entrySet().stream()
+          .collect(Collectors.toMap(
+            e -> Helper.to(e.getKey()),
+            Map.Entry::getValue
+          )));
+      alterReplicaLogDirsResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete();
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
 }
