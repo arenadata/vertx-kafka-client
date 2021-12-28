@@ -993,4 +993,32 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
       promise.fail(e);
     }
   }
+
+  @Override
+  public void unregisterBroker(int brokerId, Handler<AsyncResult<Void>> completionHandler) {
+    unregisterBroker(brokerId).onComplete(completionHandler);
+  }
+
+  @Override
+  public Future<Void> unregisterBroker(int brokerId) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Void> promise = ctx.promise();
+    unregisterBrokerInternal(brokerId, promise);
+    return promise.future();
+  }
+
+  private void unregisterBrokerInternal(int brokerId, Promise<Void> promise) {
+    try {
+      UnregisterBrokerResult unregisterBrokerResult = this.adminClient.unregisterBroker(brokerId);
+      unregisterBrokerResult.all().whenComplete((v, ex) -> {
+        if (ex == null) {
+          promise.complete(v);
+        } else {
+          promise.fail(ex);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+  }
 }
