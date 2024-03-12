@@ -95,7 +95,22 @@ public class AdminClientTest extends KafkaClusterTestBase {
       }));
     });
   }
+  @Test
+  public void testListTopicsWithoutInternal(TestContext ctx) {
 
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+
+    Async async = ctx.async();
+
+    // timer because, Kafka cluster takes time to create topics
+    vertx.setTimer(1000, t -> {
+      adminClient.listTopics(new ListTopicsOptions(false), ctx.asyncAssertSuccess(res ->{
+        ctx.assertTrue(res.containsAll(topics), "Was expecting topics " + topics + " to be in " + res);
+        adminClient.close();
+        async.complete();
+      }));
+    });
+  }
   @Test
   public void testDescribeTopics(TestContext ctx) {
 
