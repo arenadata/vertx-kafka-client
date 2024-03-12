@@ -82,10 +82,14 @@ public interface KafkaAdminClient {
    */
   void listTopics(Handler<AsyncResult<Set<String>>> completionHandler);
 
+  void listTopics(ListTopicsOptions options, Handler<AsyncResult<Set<String>>> completionHandler);
+
   /**
    * Like {@link #listTopics(Handler)} but returns a {@code Future} of the asynchronous result
    */
   Future<Set<String>> listTopics();
+
+  Future<Set<String>> listTopics(ListTopicsOptions options);
 
   /**
    * Describe some topics in the cluster, with the default options.

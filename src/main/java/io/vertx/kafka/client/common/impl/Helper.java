@@ -471,4 +471,12 @@ public class Helper {
       replicaLogDirInfo.getFutureReplicaOffsetLag()
     );
   }
+
+  public static org.apache.kafka.clients.admin.ListTopicsOptions to(ListTopicsOptions listTopicsOptions) {
+    return new org.apache.kafka.clients.admin.ListTopicsOptions().listInternal(listTopicsOptions.isListInternal());
+  }
+
+  public static ListTopicsOptions from(org.apache.kafka.clients.admin.ListTopicsOptions listTopicsOptions) {
+    return new ListTopicsOptions(listTopicsOptions.shouldListInternal());
+  }
 }

@@ -25,6 +25,7 @@ import io.vertx.kafka.admin.FeatureMetadata;
 import io.vertx.kafka.admin.FeatureUpdate;
 import io.vertx.kafka.admin.KafkaAdminClient;
 import io.vertx.kafka.admin.ListConsumerGroupOffsetsOptions;
+import io.vertx.kafka.admin.ListTopicsOptions;
 import io.vertx.kafka.admin.MemberDescription;
 import io.vertx.kafka.admin.NewPartitionReassignment;
 import io.vertx.kafka.admin.NewPartitions;
@@ -111,6 +112,10 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   public void listTopics(Handler<AsyncResult<Set<String>>> completionHandler) {
     listTopics().onComplete(completionHandler);
   }
+  @Override
+  public void listTopics(ListTopicsOptions options, Handler<AsyncResult<Set<String>>> completionHandler) {
+    listTopics(options).onComplete(completionHandler);
+  }
 
   @Override
   public Future<Set<String>> listTopics() {
@@ -118,6 +123,21 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
     Promise<Set<String>> promise = ctx.promise();
 
     ListTopicsResult listTopicsResult = this.adminClient.listTopics();
+    listTopicsResult.names().whenComplete((topics, ex) -> {
+      if (ex == null) {
+        promise.complete(topics);
+      } else {
+        promise.fail(ex);
+      }
+    });
+    return promise.future();
+  }
+  @Override
+  public Future<Set<String>> listTopics(ListTopicsOptions options) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Set<String>> promise = ctx.promise();
+
+    ListTopicsResult listTopicsResult = this.adminClient.listTopics(Helper.to(options));
     listTopicsResult.names().whenComplete((topics, ex) -> {
       if (ex == null) {
         promise.complete(topics);
