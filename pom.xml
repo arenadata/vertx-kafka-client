@@ -26,7 +26,7 @@
   <groupId>io.arenadata.vertx</groupId>
   <name>Vert.x Kafka Client</name>
   <artifactId>vertx-kafka-client</artifactId>
-  <version>4.2.3-arenadata</version>
+  <version>4.2.3-arenadata1</version>
   <description>Vertx-kafka client from Arenadata</description>
   <url>https://github.com/arenadata/vertx-kafka-client</url>
 
