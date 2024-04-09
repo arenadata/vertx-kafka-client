@@ -99,8 +99,7 @@ public class Helper {
   }
 
   public static RecordMetadata from(org.apache.kafka.clients.producer.RecordMetadata metadata) {
-    return new RecordMetadata(metadata.checksum(), metadata.offset(),
-      metadata.partition(), metadata.timestamp(), metadata.topic());
+    return new RecordMetadata(metadata.offset(), metadata.partition(), metadata.timestamp(), metadata.topic());
   }
 
   public static OffsetAndMetadata from(org.apache.kafka.clients.consumer.OffsetAndMetadata offsetAndMetadata) {
