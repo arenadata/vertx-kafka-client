@@ -21,6 +21,7 @@ import io.vertx.core.impl.ContextInternal;
 import io.vertx.kafka.admin.Config;
 import io.vertx.kafka.admin.ConsumerGroupDescription;
 import io.vertx.kafka.admin.ConsumerGroupListing;
+import io.vertx.kafka.admin.DescribeTopicsOptions;
 import io.vertx.kafka.admin.FeatureMetadata;
 import io.vertx.kafka.admin.FeatureUpdate;
 import io.vertx.kafka.admin.KafkaAdminClient;
@@ -64,48 +65,18 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
   }
 
   @Override
+  public void describeTopics(List<String> topicNames, DescribeTopicsOptions options, Handler<AsyncResult<Map<String, TopicDescription>>> completionHandler) {
+    describeTopics(topicNames, options).onComplete(completionHandler);
+  }
+
+  @Override
   public Future<Map<String, TopicDescription>> describeTopics(List<String> topicNames) {
-    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
-    Promise<Map<String, TopicDescription>> promise = ctx.promise();
+    return describeTopics(this.adminClient.describeTopics(topicNames));
+  }
 
-    DescribeTopicsResult describeTopicsResult = this.adminClient.describeTopics(topicNames);
-    describeTopicsResult.all().whenComplete((t, ex) -> {
-      if (ex == null) {
-
-        Map<String, TopicDescription> topics = new HashMap<>();
-
-        for (Map.Entry<String, org.apache.kafka.clients.admin.TopicDescription> topicDescriptionEntry : t.entrySet()) {
-
-          List<TopicPartitionInfo> partitions = new ArrayList<>();
-
-          for (org.apache.kafka.common.TopicPartitionInfo kafkaPartitionInfo : topicDescriptionEntry.getValue().partitions()) {
-
-            TopicPartitionInfo topicPartitionInfo = new TopicPartitionInfo();
-            topicPartitionInfo.setIsr(
-              kafkaPartitionInfo.isr().stream().map(Helper::from).collect(Collectors.toList()))
-              .setLeader(Helper.from(kafkaPartitionInfo.leader()))
-              .setPartition(kafkaPartitionInfo.partition())
-              .setReplicas(
-                kafkaPartitionInfo.replicas().stream().map(Helper::from).collect(Collectors.toList()));
-
-            partitions.add(topicPartitionInfo);
-          }
-
-          TopicDescription topicDescription = new TopicDescription();
-
-          topicDescription.setInternal(topicDescriptionEntry.getValue().isInternal())
-            .setName(topicDescriptionEntry.getKey())
-            .setPartitions(partitions);
-
-          topics.put(topicDescriptionEntry.getKey(), topicDescription);
-        }
-
-        promise.complete(topics);
-      } else {
-        promise.fail(ex);
-      }
-    });
-    return promise.future();
+  @Override
+  public Future<Map<String, TopicDescription>> describeTopics(List<String> topicNames, DescribeTopicsOptions options) {
+    return describeTopics(this.adminClient.describeTopics(topicNames, Helper.to(options)));
   }
 
   @Override
@@ -119,33 +90,11 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
 
   @Override
   public Future<Set<String>> listTopics() {
-    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
-    Promise<Set<String>> promise = ctx.promise();
-
-    ListTopicsResult listTopicsResult = this.adminClient.listTopics();
-    listTopicsResult.names().whenComplete((topics, ex) -> {
-      if (ex == null) {
-        promise.complete(topics);
-      } else {
-        promise.fail(ex);
-      }
-    });
-    return promise.future();
+    return listTopics(this.adminClient.listTopics());
   }
   @Override
   public Future<Set<String>> listTopics(ListTopicsOptions options) {
-    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
-    Promise<Set<String>> promise = ctx.promise();
-
-    ListTopicsResult listTopicsResult = this.adminClient.listTopics(Helper.to(options));
-    listTopicsResult.names().whenComplete((topics, ex) -> {
-      if (ex == null) {
-        promise.complete(topics);
-      } else {
-        promise.fail(ex);
-      }
-    });
-    return promise.future();
+    return listTopics(this.adminClient.listTopics(Helper.to(options)));
   }
 
   @Override
@@ -1040,5 +989,60 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
     } catch (Exception e) {
       promise.fail(e);
     }
+  }
+
+  private Future<Set<String>> listTopics(ListTopicsResult listTopicsResult) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Set<String>> promise = ctx.promise();
+    listTopicsResult.names().whenComplete((topics, ex) -> {
+      if (ex == null) {
+        promise.complete(topics);
+      } else {
+        promise.fail(ex);
+      }
+    });
+    return promise.future();
+  }
+
+  private Future<Map<String, TopicDescription>> describeTopics(DescribeTopicsResult describeTopicsResult) {
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<Map<String, TopicDescription>> promise = ctx.promise();
+    describeTopicsResult.all().whenComplete((t, ex) -> {
+      if (ex == null) {
+
+        Map<String, TopicDescription> topics = new HashMap<>();
+
+        for (Map.Entry<String, org.apache.kafka.clients.admin.TopicDescription> topicDescriptionEntry : t.entrySet()) {
+
+          List<TopicPartitionInfo> partitions = new ArrayList<>();
+
+          for (org.apache.kafka.common.TopicPartitionInfo kafkaPartitionInfo : topicDescriptionEntry.getValue().partitions()) {
+
+            TopicPartitionInfo topicPartitionInfo = new TopicPartitionInfo();
+            topicPartitionInfo.setIsr(
+                            kafkaPartitionInfo.isr().stream().map(Helper::from).collect(Collectors.toList()))
+                    .setLeader(Helper.from(kafkaPartitionInfo.leader()))
+                    .setPartition(kafkaPartitionInfo.partition())
+                    .setReplicas(
+                            kafkaPartitionInfo.replicas().stream().map(Helper::from).collect(Collectors.toList()));
+
+            partitions.add(topicPartitionInfo);
+          }
+
+          TopicDescription topicDescription = new TopicDescription();
+
+          topicDescription.setInternal(topicDescriptionEntry.getValue().isInternal())
+                  .setName(topicDescriptionEntry.getKey())
+                  .setPartitions(partitions);
+
+          topics.put(topicDescriptionEntry.getKey(), topicDescription);
+        }
+
+        promise.complete(topics);
+      } else {
+        promise.fail(ex);
+      }
+    });
+    return promise.future();
   }
 }

@@ -99,8 +99,7 @@ public class Helper {
   }
 
   public static RecordMetadata from(org.apache.kafka.clients.producer.RecordMetadata metadata) {
-    return new RecordMetadata(metadata.checksum(), metadata.offset(),
-      metadata.partition(), metadata.timestamp(), metadata.topic());
+    return new RecordMetadata(metadata.offset(), metadata.partition(), metadata.timestamp(), metadata.topic());
   }
 
   public static OffsetAndMetadata from(org.apache.kafka.clients.consumer.OffsetAndMetadata offsetAndMetadata) {
@@ -478,5 +477,15 @@ public class Helper {
 
   public static ListTopicsOptions from(org.apache.kafka.clients.admin.ListTopicsOptions listTopicsOptions) {
     return new ListTopicsOptions(listTopicsOptions.shouldListInternal());
+  }
+
+  public static org.apache.kafka.clients.admin.DescribeTopicsOptions to(DescribeTopicsOptions describeTopicsOptions) {
+    return new org.apache.kafka.clients.admin.DescribeTopicsOptions()
+            .timeoutMs(describeTopicsOptions.timeoutMs())
+            .includeAuthorizedOperations(describeTopicsOptions.isIncludeAuthorizedOperations());
+  }
+
+  public static DescribeTopicsOptions from(org.apache.kafka.clients.admin.DescribeTopicsOptions describeTopicsOptions) {
+    return new DescribeTopicsOptions(describeTopicsOptions.timeoutMs(), describeTopicsOptions.includeAuthorizedOperations());
   }
 }

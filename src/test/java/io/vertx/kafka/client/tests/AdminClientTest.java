@@ -28,6 +28,7 @@ import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.errors.ElectionNotNeededException;
+import org.apache.kafka.common.errors.TimeoutException;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.After;
@@ -140,6 +141,21 @@ public class AdminClientTest extends KafkaClusterTestBase {
         async.complete();
       }));
     });
+  }
+
+  @Test
+  public void testDescribeTopicsTimeoutOption(TestContext ctx) {
+
+    KafkaAdminClient adminClient = KafkaAdminClient.create(this.vertx, config);
+
+    Async async = ctx.async();
+
+    // timer because, Kafka cluster takes time to create topics
+    vertx.setTimer(1000, t -> adminClient.describeTopics(Collections.singletonList("first-topic"), new DescribeTopicsOptions(1, true), ctx.asyncAssertFailure(error -> {
+      assertEquals(TimeoutException.class, error.getCause().getClass());
+      adminClient.close();
+      async.complete();
+    })));
   }
 
   @Test

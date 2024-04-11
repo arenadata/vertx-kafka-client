@@ -99,10 +99,14 @@ public interface KafkaAdminClient {
    */
   void describeTopics(List<String> topicNames, Handler<AsyncResult<Map<String, TopicDescription>>> completionHandler);
 
+  void describeTopics(List<String> topicNames, DescribeTopicsOptions options, Handler<AsyncResult<Map<String, TopicDescription>>> completionHandler);
+
   /**
    * Like {@link #describeTopics(List, Handler)} but returns a {@code Future} of the asynchronous result
    */
   Future<Map<String, TopicDescription>> describeTopics(List<String> topicNames);
+
+  Future<Map<String, TopicDescription>> describeTopics(List<String> topicNames, DescribeTopicsOptions options);
 
   /**
    * Creates a batch of new Kafka topics
